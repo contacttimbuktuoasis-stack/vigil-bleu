@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0077B6">
+<title>Vigil Bleu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --p:#0077B6;--pl:#00B4D8;--pd:#023E8A;
+  --bg:#F0F9FF;--card:#FFFFFF;
+  --text:#0F172A;--muted:#64748B;--light:#94A3B8;
+  --success:#059669;--warn:#D97706;--danger:#DC2626;
+  --border:#CBD5E1;--border-l:#E2E8F0;
+  --shadow:0 2px 12px rgba(0,0,0,.08);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F172A;--card:#1E293B;
+  --text:#F1F5F9;--muted:#94A3B8;--light:#475569;
+  --border:#334155;--border-l:#243044;
+  --shadow:0 2px 12px rgba(0,0,0,.3);
+}}
+:root[data-theme="dark"]{
+  --bg:#0F172A;--card:#1E293B;
+  --text:#F1F5F9;--muted:#94A3B8;--light:#475569;
+  --border:#334155;--border-l:#243044;
+  --shadow:0 2px 12px rgba(0,0,0,.3);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100svh;overflow-x:hidden}
+
+/* SCREENS */
+.s{display:none;min-height:100svh;flex-direction:column;max-width:440px;margin:0 auto}
+.s.on{display:flex}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,var(--pd),var(--p));color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20}
+.hdr-t{font-size:18px;font-weight:700;flex:1}
+.hdr-s{font-size:11px;opacity:.8;margin-top:2px}
+.back{background:rgba(255,255,255,.18);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.back:active{background:rgba(255,255,255,.3)}
+
+/* HOME */
+.hero{background:linear-gradient(160deg,var(--pd) 0%,var(--p) 50%,var(--pl) 100%);padding:48px 24px 76px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:52px;background:var(--bg);clip-path:ellipse(62% 100% at 50% 100%)}
+.hero-logo{font-size:60px;margin-bottom:10px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2))}
+.hero-name{font-size:34px;font-weight:800;letter-spacing:-.5px}
+.hero-tag{font-size:13px;opacity:.85;margin-top:8px;line-height:1.55}
+.home-body{padding:28px 20px;flex:1;display:flex;flex-direction:column;gap:12px}
+
+/* BUTTONS */
+.btn-p{background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:16px;padding:18px 20px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(0,119,182,.3);transition:opacity .15s,transform .1s;width:100%}
+.btn-p:active{opacity:.85;transform:scale(.98)}
+.btn-p:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-s{background:var(--card);color:var(--p);border:1.5px solid var(--border-l);border-radius:16px;padding:16px 20px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;width:100%}
+.btn-s:active{opacity:.7}
+.btn-sm{border:none;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-sm:active{opacity:.7}
+.adm-lnk{text-align:center;color:var(--muted);font-size:13px;cursor:pointer;padding:10px;text-decoration:underline}
+
+/* STEP BAR */
+.stepbar{display:flex;justify-content:center;gap:6px;padding:16px 20px}
+.pip{height:5px;border-radius:3px;background:var(--border);transition:all .3s;width:24px}
+.pip.on{background:var(--p);width:36px}
+.pip.done{background:var(--success);width:28px}
+.step-body{padding:20px;flex:1}
+.step-t{font-size:22px;font-weight:800;margin-bottom:4px}
+.step-sub{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.4}
+.foot{padding:14px 20px;background:var(--bg);border-top:1px solid var(--border-l);position:sticky;bottom:0}
+
+/* PHOTO */
+.pzone{border:2px dashed var(--border);border-radius:20px;padding:36px 16px;text-align:center;cursor:pointer;background:var(--card);min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:border-color .2s,background .2s}
+.pzone.has{border-color:var(--p);border-style:solid}
+.pzone-ico{font-size:48px}
+.pzone-lbl{font-size:14px;color:var(--muted);line-height:1.4}
+.pzone img{max-width:100%;max-height:220px;border-radius:12px;object-fit:cover}
+.pzone-chg{font-size:12px;color:var(--p);margin-top:4px;text-decoration:underline}
+#ph-inp{display:none}
+
+/* TYPE LIST */
+.tlist{display:flex;flex-direction:column;gap:8px}
+.tcard{background:var(--card);border:2px solid var(--border-l);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s,background .15s}
+.tcard:active{transform:scale(.98)}
+.tcard.sel{border-color:var(--p);background:#EFF9FF}
+.tcard-ico{font-size:26px;flex-shrink:0}
+.tcard-lbl{font-size:15px;font-weight:600;color:var(--text);flex:1}
+.tcard-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all .15s}
+.tcard.sel .tcard-check{background:var(--p);border-color:var(--p);background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 10l4 4 6-6' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+
+/* LOCATION */
+.loc-card{background:var(--card);border:1px solid var(--border-l);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.loc-ico{font-size:28px;flex-shrink:0;margin-top:2px}
+.loc-n{font-weight:700;font-size:15px}
+.loc-c{font-size:11px;color:var(--muted);margin-top:2px}
+.loc-st{font-size:11px;margin-top:4px}
+.loc-st.ok{color:var(--success)}
+.loc-st.wait{color:var(--warn)}
+.notes-ta{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:14px;font-family:inherit;resize:none;outline:none;background:var(--card);color:var(--text);line-height:1.5}
+.notes-ta:focus{border-color:var(--p)}
+
+/* OVERLAY / MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.52);display:flex;align-items:flex-end;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.show{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:24px 24px 0 0;padding:28px 22px 44px;width:100%;max-width:440px;transform:translateY(40px);transition:transform .25s}
+.ov.show .modal{transform:none}
+.modal-ico{font-size:44px;text-align:center;margin-bottom:10px}
+.modal-t{font-size:19px;font-weight:700;text-align:center;margin-bottom:6px}
+.modal-txt{font-size:13px;color:var(--muted);text-align:center;line-height:1.55;margin-bottom:22px}
+.modal-btns{display:flex;flex-direction:column;gap:8px}
+
+/* CONFIRM */
+.confirm-hero{background:linear-gradient(160deg,#065F46 0%,var(--success) 100%);padding:48px 24px 76px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.confirm-hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:52px;background:var(--bg);clip-path:ellipse(62% 100% at 50% 100%)}
+.tkcard{background:var(--card);margin:20px;border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.tknum{font-size:38px;font-weight:800;color:var(--p);text-align:center;letter-spacing:3px}
+.tklbl{font-size:10px;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.tkrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--border-l)}
+.tkrow-l{font-size:12px;color:var(--muted)}
+.tkrow-v{font-size:12px;font-weight:700}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.b-recu{background:#DBEAFE;color:#1D4ED8}
+.b-cours{background:#FEF3C7;color:#92400E}
+.b-regle{background:#D1FAE5;color:#065F46}
+.wa-btn{background:#25D366;color:#fff;border:none;border-radius:14px;padding:15px 20px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;transition:opacity .15s}
+.wa-btn:active{opacity:.85}
+
+/* MY REPORTS */
+.rcard{background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.rcard-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.rcard-tk{font-weight:800;color:var(--p);font-size:15px}
+.rcard-type{font-size:13px;margin-bottom:4px}
+.rcard-loc{font-size:11px;color:var(--muted)}
+.empty{text-align:center;padding:64px 20px;color:var(--muted)}
+.empty-ico{font-size:52px;margin-bottom:12px}
+
+/* ADMIN */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px}
+.stat{background:var(--card);border:1px solid var(--border-l);border-radius:12px;padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+.stat-n{font-size:26px;font-weight:800;color:var(--p)}
+.stat-l{font-size:10px;color:var(--muted);margin-top:2px}
+.kw-box{background:var(--card);border:1.5px solid var(--border-l);border-radius:14px;padding:14px;margin:0 14px 10px}
+.kw-lbl{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:8px}
+.kw-row{display:flex;gap:8px}
+.kw-in{flex:1;border:1.5px solid var(--border);border-radius:9px;padding:9px 11px;font-size:14px;font-family:inherit;outline:none;background:var(--bg);color:var(--text)}
+.kw-in:focus{border-color:var(--p)}
+.kw-apply{background:var(--p);color:#fff;border:none;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.kw-hint{font-size:11px;color:var(--muted);margin-top:6px}
+.atabs{display:flex;background:var(--card);border-bottom:1.5px solid var(--border-l)}
+.atab{flex:1;padding:13px;text-align:center;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all .2s}
+.atab.on{color:var(--p);border-color:var(--p)}
+.apane{display:none;flex:1;overflow-y:auto}
+.apane.on{display:block}
+#amap{height:310px}
+.filters{display:flex;gap:8px;padding:10px 14px;overflow-x:auto}
+.fchip{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;color:var(--text);transition:all .15s}
+.fchip.on{background:var(--p);color:#fff;border-color:var(--p)}
+.arcard{background:var(--card);margin:8px 14px;border-radius:14px;padding:14px;border:1px solid var(--border-l);box-shadow:var(--shadow)}
+.arcard-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.arcard-tk{font-weight:800;color:var(--p)}
+.arcard-acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.btn-cours-sm{background:var(--warn);color:#fff}
+.btn-regle-sm{background:var(--success);color:#fff}
+
+/* LOGIN */
+.login-body{flex:1;padding:40px 24px;display:flex;flex-direction:column}
+.login-top{text-align:center;margin-bottom:36px}
+.iw{margin-bottom:14px}
+.ilbl{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;display:block}
+.inp{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;font-family:inherit;outline:none;background:var(--card);color:var(--text)}
+.inp:focus{border-color:var(--p)}
+.err{color:var(--danger);font-size:13px;margin-bottom:10px;display:none;background:#FEF2F2;padding:10px 12px;border-radius:10px;border:1px solid #FCA5A5}
+.logout-btn{background:rgba(255,255,255,.18);border:none;color:#fff;padding:7px 12px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- ========= HOME ========= -->
+<div id="s-home" class="s on">
+  <div class="hero">
+    <div class="hero-logo">💧</div>
+    <div class="hero-name">Vigil Bleu</div>
+    <div class="hero-tag">Signalez les fuites d'eau dans votre quartier<br>et contribuez à préserver l'eau de votre ville</div>
+  </div>
+  <div class="home-body">
+    <button class="btn-p" onclick="startSignal()">📍 Signaler une fuite</button>
+    <button class="btn-s" onclick="showMine()">📋 Mes signalements</button>
+    <div class="adm-lnk" onclick="go('s-login')">Espace admin →</div>
+  </div>
+</div>
+
+<!-- ========= STEP 1 – TYPE ========= -->
+<div id="s-step1" class="s">
+  <div class="hdr">
+    <button class="back" onclick="go('s-home')">←</button>
+    <div><div class="hdr-t">Signalement</div><div class="hdr-s">Étape 1 / 2 — Nature de la panne</div></div>
+  </div>
+  <div class="stepbar">
+    <div class="pip on"></div><div class="pip"></div>
+  </div>
+  <div class="step-body">
+    <div class="step-t">Type de panne</div>
+    <div class="step-sub">Sélectionnez ce qui décrit le mieux la situation.</div>
+    <div class="tlist" id="tgrid"></div>
+
+    <!-- Champ affiché uniquement si "Autre panne" est sélectionné -->
+    <div id="autre-field" style="display:none;margin-top:12px">
+      <textarea id="autre-ta" class="notes-ta" rows="3"
+        placeholder="Décrivez la panne en quelques mots (40 mots maximum)…"
+        oninput="checkAutreWords(this)"></textarea>
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <span style="font-size:11px;color:var(--muted)">Soyez précis pour aider l'équipe</span>
+        <span id="autre-cnt" style="font-size:11px;color:var(--muted)">0 / 40 mots</span>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <button class="btn-p" id="btn1" onclick="go('s-step2')" disabled>Continuer →</button>
+  </div>
+</div>
+
+<!-- ========= STEP 2 – LOCALISATION + ENVOI ========= -->
+<div id="s-step2" class="s">
+  <div class="hdr">
+    <button class="back" onclick="go('s-step1')">←</button>
+    <div><div class="hdr-t">Signalement</div><div class="hdr-s">Étape 2 / 2 — Localisation et envoi</div></div>
+  </div>
+  <div class="stepbar">
+    <div class="pip done"></div><div class="pip on"></div>
+  </div>
+  <div class="step-body">
+    <div class="step-t">Votre localisation</div>
+    <div class="step-sub">Votre position est détectée automatiquement. Vérifiez ou corrigez si besoin.</div>
+
+    <!-- Indicateur GPS -->
+    <div id="geo-pill" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border-l);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+      <span style="font-size:18px">⏳</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--muted)">Géolocalisation en cours…</div>
+      </div>
+    </div>
+
+    <textarea class="notes-ta" id="notes-ta" rows="3" placeholder="Détails supplémentaires (facultatif) — ex : eau coulant depuis 2 jours…"></textarea>
+  </div>
+  <div class="foot" style="padding-bottom:max(16px, env(safe-area-inset-bottom, 16px))">
+    <button class="btn-p" id="btn2" onclick="trySubmit()">📤 Envoyer le signalement</button>
+  </div>
+</div>
+
+<!-- ========= MODAL DOUBLON ========= -->
+<div class="ov" id="ov-dupli">
+  <div class="modal">
+    <div class="modal-ico">⚠️</div>
+    <div class="modal-t">Fuite déjà signalée ici</div>
+    <div class="modal-txt">Une fuite a déjà été signalée à moins de 100 m le <b id="dupli-date"></b> (statut : <b id="dupli-st"></b>). Est-ce toujours la même ?</div>
+    <div class="modal-btns">
+      <button class="btn-p" onclick="confirmDupli()">Oui, elle est toujours active</button>
+      <button class="btn-s" onclick="newDupli()">Non, c'est une autre fuite</button>
+      <button style="text-align:center;padding:12px;cursor:pointer;background:none;border:none;color:var(--muted);font-size:13px;width:100%" onclick="closeDupli()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========= CONFIRMATION ========= -->
+<div id="s-confirm" class="s">
+  <div class="confirm-hero">
+    <div style="font-size:64px;margin-bottom:12px">✅</div>
+    <div style="font-size:26px;font-weight:800">Signalement envoyé !</div>
+    <div style="font-size:13px;opacity:.9;margin-top:8px;line-height:1.5">L'équipe a été notifiée et interviendra<br>le plus rapidement possible</div>
+  </div>
+  <div class="tkcard">
+    <div class="tknum" id="c-tk">—</div>
+    <div class="tklbl">Numéro de ticket</div>
+    <div class="tkrow"><span class="tkrow-l">Type de panne</span><span class="tkrow-v" id="c-type">—</span></div>
+    <div class="tkrow"><span class="tkrow-l">Quartier</span><span class="tkrow-v" id="c-qrt">—</span></div>
+    <div class="tkrow"><span class="tkrow-l">Statut</span><span class="badge b-recu">📥 Reçu</span></div>
+    <div class="tkrow"><span class="tkrow-l">Date</span><span class="tkrow-v" id="c-date">—</span></div>
+  </div>
+  <div style="padding:0 20px 36px;display:flex;flex-direction:column;gap:10px">
+    <button class="btn-p" onclick="finishReport()" style="font-size:16px;padding:18px">
+      ✅ Confirmer mon signalement
+    </button>
+    <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:-4px">
+      Votre signalement est enregistré avec son ticket. Aucun message WhatsApp ne sera envoyé depuis votre téléphone.
+    </div>
+    <button class="btn-s" onclick="showMine()">📋 Suivre mon signalement</button>
+    <button class="btn-s" onclick="go('s-home')">← Retour à l'accueil</button>
+  </div>
+</div>
+
+<!-- ========= MES SIGNALEMENTS ========= -->
+<div id="s-mine" class="s">
+  <div class="hdr">
+    <button class="back" onclick="go('s-home')">←</button>
+    <div class="hdr-t">Mes signalements</div>
+  </div>
+  <div style="padding:16px;flex:1;overflow-y:auto" id="mine-list"></div>
+</div>
+
+<!-- ========= ADMIN LOGIN ========= -->
+<div id="s-login" class="s">
+  <div class="hdr">
+    <button class="back" onclick="go('s-home')">←</button>
+    <div class="hdr-t">Espace admin</div>
+  </div>
+
+  <!-- Bandeau d'avertissement -->
+  <div style="background:#FEF3C7;border-bottom:2px solid #FCD34D;padding:14px 18px;display:flex;gap:12px;align-items:flex-start">
+    <span style="font-size:22px;flex-shrink:0">⚠️</span>
+    <div>
+      <div style="font-size:13px;font-weight:800;color:#92400E">Espace réservé au personnel autorisé</div>
+      <div style="font-size:12px;color:#B45309;margin-top:3px;line-height:1.4">Cet espace est exclusivement réservé aux agents de la société de distribution d'eau. Tout accès non autorisé est strictly interdit et fera l'objet de poursuites.</div>
+    </div>
+  </div>
+
+  <div class="login-body">
+    <div class="login-top">
+      <div style="font-size:52px;margin-bottom:12px">🔐</div>
+      <div style="font-size:20px;font-weight:800">Accès sécurisé</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Identifiez-vous avec votre compte personnel</div>
+    </div>
+    <div class="iw">
+      <label class="ilbl">Adresse e-mail</label>
+      <input class="inp" id="l-user" type="email" placeholder="votre@email.com" autocomplete="email">
+    </div>
+    <div class="iw">
+      <label class="ilbl">Mot de passe</label>
+      <input class="inp" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+      <!-- Comptes démo -->
+      <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:10px 12px;margin-top:10px">
+        <div style="font-size:11px;font-weight:800;color:#065F46;margin-bottom:6px">🧪 Comptes de démonstration</div>
+        <div style="font-size:11px;color:#047857;line-height:1.8">
+          <b>Admin :</b> admin@vigilbleu.com / Admin1234<br>
+          <b>Superviseur :</b> sarah.diop@eau.sn / 1234
+        </div>
+      </div>
+    </div>
+    <div class="err" id="l-err">Compte introuvable ou mot de passe incorrect.</div>
+    <button class="btn-p" onclick="doLogin()" style="margin-top:8px">Connexion</button>
+  </div>
+</div>
+
+<!-- ========= ADMIN DASHBOARD ========= -->
+<div id="s-admin" class="s">
+  <div class="hdr">
+    <div style="flex:1">
+      <div class="hdr-t">💧 Vigil Bleu</div>
+      <div style="font-size:11px;opacity:.85;margin-top:2px">
+        <span id="adm-user-name">—</span> · <span id="adm-user-role">—</span>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Déconnexion</button>
+  </div>
+
+  <div class="stats-row" id="adm-stats"></div>
+
+  <div class="kw-box">
+    <label class="kw-lbl">⌨️ Mise à jour rapide (terrain → responsable)</label>
+    <div class="kw-row">
+      <input class="kw-in" id="kw-in" placeholder="ex : REGLE #003" oninput="this.value=this.value.toUpperCase()">
+      <button class="kw-apply" onclick="applyKw()">Valider</button>
+    </div>
+    <div class="kw-hint" id="kw-hint">Mots-clés : REGLE · COURS · RECU &nbsp;+&nbsp; numéro du ticket</div>
+  </div>
+
+  <div class="atabs">
+    <div class="atab on" id="tab-map" onclick="switchTab('map')">🗺 Carte</div>
+    <div class="atab" id="tab-list" onclick="switchTab('list')">📋 Liste</div>
+    <div class="atab" id="tab-stats" onclick="switchTab('stats')">📊 Stats</div>
+    <div class="atab" id="tab-comptes" onclick="switchTab('comptes')" style="display:none">👥 Comptes</div>
+  </div>
+
+  <div class="apane on" id="pane-map"><div id="amap"></div></div>
+
+  <div class="apane" id="pane-list">
+    <div class="filters">
+      <div class="fchip on" onclick="setF('all',this)">Tous</div>
+      <div class="fchip" onclick="setF('recu',this)">📥 Reçus</div>
+      <div class="fchip" onclick="setF('cours',this)">🔧 En cours</div>
+      <div class="fchip" onclick="setF('regle',this)">✅ Réglés</div>
+    </div>
+    <div id="adm-list"></div>
+  </div>
+
+  <div class="apane" id="pane-stats">
+    <div style="padding:16px" id="adm-statsview"></div>
+  </div>
+
+  <!-- Onglet Comptes (admin uniquement) -->
+  <div class="apane" id="pane-comptes">
+    <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-l)">
+      <div style="font-size:15px;font-weight:800">Comptes superviseurs</div>
+      <button onclick="openNewCompte()" style="background:var(--p);color:#fff;border:none;border-radius:11px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer">+ Nouveau</button>
+    </div>
+    <div id="comptes-list" style="padding:12px 14px"></div>
+  </div>
+
+  </div>
+</div>
+
+<!-- ========= MODAL NOUVEAU COMPTE ========= -->
+<div class="ov" id="ov-compte">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div style="font-size:17px;font-weight:800">👤 Nouveau superviseur</div>
+      <button onclick="document.getElementById('ov-compte').classList.remove('show')"
+        style="background:var(--border-l);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;color:var(--muted)">✕</button>
+    </div>
+    <div class="iw">
+      <label class="ilbl">Nom complet</label>
+      <input class="inp" id="nc-nom" type="text" placeholder="ex : Sarah Diop">
+    </div>
+    <div class="iw">
+      <label class="ilbl">Adresse e-mail</label>
+      <input class="inp" id="nc-email" type="email" placeholder="ex : sarah@eau.sn">
+    </div>
+    <div class="iw">
+      <label class="ilbl">Mot de passe</label>
+      <input class="inp" id="nc-pass" type="password" placeholder="Choisir un mot de passe">
+    </div>
+    <div class="err" id="nc-err" style="margin-bottom:10px">Veuillez remplir tous les champs.</div>
+    <button class="btn-p" onclick="createCompte()">Créer le compte</button>
+  </div>
+</div>
+<div class="ov" id="ov-rapport">
+  <div class="modal" style="max-height:85vh;overflow-y:auto;padding-bottom:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:17px;font-weight:800">📄 Rapport par quartier</div>
+      <button onclick="document.getElementById('ov-rapport').classList.remove('show')"
+        style="background:var(--border-l);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;color:var(--muted)">✕</button>
+    </div>
+    <div id="rapport-body" style="font-size:13px;line-height:1.6"></div>
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button class="btn-p" onclick="copyRapport()" style="flex:1;padding:13px">📋 Copier</button>
+      <button class="btn-s" onclick="window.print()" style="flex:1;padding:13px">🖨️ Imprimer</button>
+    </div>
+    <div id="copy-ok" style="text-align:center;font-size:12px;color:var(--success);margin-top:8px;display:none">✅ Rapport copié !</div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const WA_NUM = '22389161329'; // Numéro vert Vigil Bleu
+const DUPLI_R = 100; // mètres
+
+// ===== COMPTES (données par défaut) =====
+const DEMO_ACCOUNTS = [
+  {id:'a1',role:'admin',nom:'Admin Principal',email:'admin@vigilbleu.com',password:'Admin1234',active:true,createdAt:new Date().toISOString()},
+  {id:'s1',role:'superviseur',nom:'Sarah Diop',email:'sarah.diop@eau.sn',password:'1234',active:true,createdAt:new Date().toISOString()},
+  {id:'s2',role:'superviseur',nom:'Moussa Ba',email:'moussa.ba@eau.sn',password:'1234',active:false,createdAt:new Date().toISOString()},
+];
+function getAcc(){ try{return JSON.parse(localStorage.getItem('vb_acc')||'null')||DEMO_ACCOUNTS}catch{return DEMO_ACCOUNTS} }
+function setAcc(a){ try{localStorage.setItem('vb_acc',JSON.stringify(a))}catch{} }
+
+// ===== STATE =====
+let F = {photo:null,photoUrl:null,type:null,typeLabel:null,typeIco:null,lat:null,lng:null,quartier:'Quartier',notes:''};
+let skipDupli = false;
+let adMap = null, adFilter = 'all', adMarkers = [];
+let currentUser = null; // utilisateur connecté
+
+// ===== TYPES =====
+const TYPES = [
+  {id:'robinet',ico:'🚿',lbl:'Robinet cassé'},
+  {id:'tuyau',ico:'💧',lbl:'Tuyau percé'},
+  {id:'borne',ico:'⛲',lbl:'Borne-fontaine'},
+  {id:'conduite',ico:'🏗️',lbl:'Conduite principale'},
+  {id:'autre',ico:'❓',lbl:'Autre panne'}
+];
+
+// ===== STORAGE =====
+function getR(){ try{return JSON.parse(localStorage.getItem('vb_r')||'[]')}catch{return[]} }
+function setR(r){ try{localStorage.setItem('vb_r',JSON.stringify(r))}catch{} }
+function getM(){ try{return JSON.parse(localStorage.getItem('vb_m')||'[]')}catch{return[]} }
+function setM(m){ try{localStorage.setItem('vb_m',JSON.stringify(m))}catch{} }
+
+// ===== SAMPLE DATA =====
+(function initDemo(){
+  if(getR().length) return;
+  const base = Date.now();
+  setR([
+    {id:'d1',ticket:'#001',type:'robinet',typeLabel:'Robinet cassé',typeIco:'🚿',quartier:'Quartier Nord',notes:'Fuite depuis 2 jours',lat:14.6936,lng:-17.4441,status:'regle',date:new Date(base-7*864e5).toISOString(),dateResolved:new Date(base-5*864e5).toISOString()},
+    {id:'d2',ticket:'#002',type:'tuyau',typeLabel:'Tuyau percé',typeIco:'💧',quartier:'Centre-Ville',notes:'Eau qui gicle sur la route',lat:14.6960,lng:-17.4475,status:'cours',date:new Date(base-2*864e5).toISOString()},
+    {id:'d3',ticket:'#003',type:'conduite',typeLabel:'Conduite principale',typeIco:'🏗️',quartier:'Quartier Est',notes:'Grosse flaque permanente',lat:14.6908,lng:-17.4408,status:'recu',date:new Date(base-864e5).toISOString()},
+  ]);
+})();
+
+// ===== NAV =====
+function go(id){
+  document.querySelectorAll('.s').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+// ===== FORMAT =====
+function fmtDate(iso){
+  return new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+}
+function fmtDt(iso){
+  return new Date(iso).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function stLbl(s){ return s==='recu'?'Reçu':s==='cours'?'En cours':'Réglée'; }
+function stBadge(s){ return`<span class="badge b-${s}">${s==='recu'?'📥':s==='cours'?'🔧':'✅'} ${stLbl(s)}</span>`; }
+
+// ===== STEP 1 – TYPE =====
+function startSignal(){
+  F={photo:null,photoUrl:null,type:null,typeLabel:null,typeIco:null,lat:null,lng:null,quartier:'Quartier',notes:''};
+  skipDupli=false;
+  document.getElementById('btn1').disabled=true;
+  document.getElementById('btn2').disabled=false;
+  document.getElementById('notes-ta').value='';
+  renderTypes();
+  getGeo();
+  go('s-step1');
+}
+
+function renderTypes(){
+  const g=document.getElementById('tgrid'); g.innerHTML='';
+  document.getElementById('autre-field').style.display='none';
+  TYPES.forEach((t)=>{
+    const d=document.createElement('div');
+    d.className='tcard';
+    d.innerHTML=`<div class="tcard-ico">${t.ico}</div><div class="tcard-lbl">${t.lbl}</div><div class="tcard-check"></div>`;
+    d.onclick=()=>{
+      document.querySelectorAll('.tcard').forEach(c=>c.classList.remove('sel'));
+      d.classList.add('sel');
+      F.type=t.id; F.typeLabel=t.lbl; F.typeIco=t.ico;
+      const af=document.getElementById('autre-field');
+      if(t.id==='autre'){
+        af.style.display='block';
+        document.getElementById('autre-ta').value='';
+        document.getElementById('autre-cnt').textContent='0 / 40 mots';
+        document.getElementById('btn1').disabled=true; // oblige à saisir
+      } else {
+        af.style.display='none';
+        document.getElementById('btn1').disabled=false;
+      }
+    };
+    g.appendChild(d);
+  });
+}
+
+function checkAutreWords(ta){
+  const raw=ta.value.trim();
+  const words=raw.length?raw.split(/\s+/):[]; 
+  const cnt=words.length;
+  const cntEl=document.getElementById('autre-cnt');
+  if(cnt>40){
+    ta.value=words.slice(0,40).join(' ');
+    cntEl.textContent='40 / 40 mots (max atteint)';
+    cntEl.style.color='var(--danger)';
+  } else {
+    cntEl.textContent=`${cnt} / 40 mots`;
+    cntEl.style.color=cnt>=35?'var(--warn)':'var(--muted)';
+  }
+  const ok=cnt>0&&cnt<=40;
+  document.getElementById('btn1').disabled=!ok;
+  if(ok) F.typeLabel='Autre : '+ta.value.trim();
+}
+
+// ===== GÉO =====
+let geoState='idle';
+let geoError='';
+
+function getGeo(){
+  geoState='loading'; geoError='';
+  setPill('⏳','Recherche de votre position…','Autorisez la localisation si votre téléphone le demande');
+  if(!window.isSecureContext){
+    geoState='error'; geoError='secure'; showGeoManual('La géolocalisation nécessite HTTPS (ou localhost).'); return;
+  }
+  if(!navigator.geolocation){
+    geoState='error'; geoError='unsupported'; showGeoManual('Ce navigateur ne prend pas en charge la géolocalisation.'); return;
+  }
+  navigator.geolocation.getCurrentPosition(geoSuccess, geoFail, {
+    enableHighAccuracy:true, timeout:20000, maximumAge:0
+  });
+}
+
+function geoSuccess(p){
+  const lat=p.coords.latitude, lng=p.coords.longitude;
+  if(!Number.isFinite(lat)||!Number.isFinite(lng)){ geoFail({code:2}); return; }
+  F.lat=lat; F.lng=lng; F.quartier='Position GPS';
+  geoState='ok'; geoError='';
+  const acc=Number.isFinite(p.coords.accuracy)?Math.round(p.coords.accuracy):null;
+  setPill('📍','Position confirmée',`${lat.toFixed(5)}, ${lng.toFixed(5)}${acc?` · précision ~${acc} m`:''}`,true);
+}
+
+function geoFail(err){
+  F.lat=null; F.lng=null; geoState='error';
+  if(err&&err.code===1) geoError='permission';
+  else if(err&&err.code===3) geoError='timeout';
+  else geoError='unavailable';
+  const msg=geoError==='permission'
+    ? 'Autorisation refusée. Activez la localisation pour obtenir le point exact.'
+    : geoError==='timeout'
+    ? 'Le GPS met trop de temps à répondre. Réessayez dans un endroit dégagé.'
+    : 'Position GPS indisponible pour le moment.';
+  showGeoManual(msg);
+}
+
+function showGeoManual(message='GPS indisponible. Vous pouvez saisir votre quartier.'){
+  F.lat=null; F.lng=null;
+  const pill=document.getElementById('geo-pill'); if(!pill) return;
+  pill.innerHTML=`
+    <div style="width:100%">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:18px">📍</span>
+        <div style="font-size:12px;font-weight:600;color:var(--warn)">${message}</div>
+      </div>
+      <button type="button" class="btn-s" onclick="getGeo()" style="width:100%;margin-bottom:8px">🔄 Réessayer le GPS</button>
+      <input id="quartier-input" type="text" placeholder="Quartier / repère proche (facultatif)"
+        style="width:100%;box-sizing:border-box;border:1.5px solid var(--border);border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit;outline:none;background:var(--bg);color:var(--text)"
+        oninput="setQuartierManual(this.value)">
+    </div>`;
+}
+
+function setQuartierManual(val){ F.quartier=val.trim()||'Quartier non précisé'; }
+function useFallbackGeo(){ showGeoManual(); }
+
+function setPill(ico,label,coords,ok=false){
+  const el=document.getElementById('geo-pill'); if(!el) return;
+  el.innerHTML=`<span style="font-size:18px">${ico}</span><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:${ok?'var(--success)':'var(--muted)'}">${label}</div>${coords?`<div style="font-size:11px;color:var(--light);margin-top:1px">${coords}</div>`:''}</div>`;
+}
+
+// ===== HAVERSINE =====
+function hdist(a,b,c,d){
+  const R=6371000,dA=(c-a)*Math.PI/180,dB=(d-b)*Math.PI/180;
+  const x=Math.sin(dA/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dB/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+function findDupli(){
+  return getR().find(r=>r.status!=='regle'&&r.lat&&r.lng&&hdist(F.lat||0,F.lng||0,r.lat,r.lng)<DUPLI_R);
+}
+
+// ===== SUBMIT =====
+function trySubmit(){
+  F.notes=(document.getElementById('notes-ta').value||'').trim();
+  // Lire le quartier depuis le champ manuel si GPS absent
+  const qInput=document.getElementById('quartier-input');
+  if(qInput&&qInput.value.trim()) F.quartier=qInput.value.trim();
+  if(!F.quartier||F.quartier==='Quartier') F.quartier='Quartier non précisé';
+  // Ne jamais inventer une position GPS.
+  const dup=findDupli();
+  if(dup&&!skipDupli){
+    document.getElementById('dupli-date').textContent=fmtDate(dup.date);
+    document.getElementById('dupli-st').textContent=stLbl(dup.status);
+    document.getElementById('ov-dupli').classList.add('show');
+    return;
+  }
+  skipDupli=false;
+  createReport();
+}
+function confirmDupli(){ document.getElementById('ov-dupli').classList.remove('show'); skipDupli=true; createReport(); }
+function newDupli(){ document.getElementById('ov-dupli').classList.remove('show'); skipDupli=true; createReport(); }
+function closeDupli(){ document.getElementById('ov-dupli').classList.remove('show'); }
+
+function nextTk(){
+  const r=getR();
+  if(!r.length) return '#004';
+  const mx=Math.max(...r.map(x=>parseInt(x.ticket.replace('#',''))||0));
+  return '#'+String(mx+1).padStart(3,'0');
+}
+function createReport(){
+  const tk=nextTk();
+  const rep={
+    id:'u'+Date.now(), ticket:tk,
+    type:F.type, typeLabel:F.typeLabel, typeIco:F.typeIco,
+    quartier:F.quartier, notes:F.notes,
+    lat:F.lat, lng:F.lng,
+    status:'recu', date:new Date().toISOString()
+  };
+  const r=getR(); r.push(rep); setR(r);
+  const m=getM(); m.push(tk); setM(m);
+  // Fill confirm screen
+  document.getElementById('c-tk').textContent=tk;
+  document.getElementById('c-type').textContent=F.typeIco+' '+F.typeLabel;
+  document.getElementById('c-qrt').textContent=F.quartier;
+  document.getElementById('c-date').textContent=fmtDt(rep.date);
+  go('s-confirm');
+}
+function finishReport(){
+  // Dans cette version, le citoyen ne quitte jamais l'application pour contacter le numéro professionnel.
+  // La transmission automatique vers le système de la société sera branchée au backend/API.
+  document.getElementById('s-confirm').scrollIntoView?.({behavior:'smooth',block:'start'});
+}
+
+// ===== MES SIGNALEMENTS =====
+function showMine(){
+  const mine=getM(), all=getR();
+  const el=document.getElementById('mine-list');
+  const myR=all.filter(r=>mine.includes(r.ticket)).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(!myR.length){
+    el.innerHTML=`<div class="empty"><div class="empty-ico">🌊</div><div style="font-weight:700;font-size:16px;margin-bottom:6px">Aucun signalement pour l'instant</div><div style="font-size:13px">Vos signalements apparaîtront ici</div></div>`;
+  } else {
+    el.innerHTML=myR.map(r=>`
+      <div class="rcard">
+        <div class="rcard-top"><span class="rcard-tk">${r.ticket}</span>${stBadge(r.status)}</div>
+        <div class="rcard-type">${r.typeIco||'💧'} ${r.typeLabel}</div>
+        <div class="rcard-loc">📍 ${r.quartier} &nbsp;·&nbsp; ${fmtDt(r.date)}</div>
+        ${r.notes?`<div style="font-size:12px;color:var(--muted);margin-top:6px">📝 ${r.notes}</div>`:''}
+        ${r.status==='regle'&&r.dateResolved?`<div style="font-size:11px;color:var(--success);margin-top:6px">✅ Réglée le ${fmtDate(r.dateResolved)}</div>`:''}
+      </div>`).join('');
+  }
+  go('s-mine');
+}
+
+// ===== ADMIN LOGIN =====
+function doLogin(){
+  const email=document.getElementById('l-user').value.trim().toLowerCase();
+  const pass=document.getElementById('l-pass').value;
+  const err=document.getElementById('l-err');
+  const acc=getAcc();
+  const user=acc.find(a=>a.email.toLowerCase()===email&&a.password===pass&&a.active);
+  if(user){
+    currentUser=user;
+    err.style.display='none';
+    // Mettre à jour l'en-tête avec nom + rôle
+    document.getElementById('adm-user-name').textContent=user.nom;
+    document.getElementById('adm-user-role').textContent=user.role==='admin'?'🔑 Admin principal':'👤 Superviseur';
+    go('s-admin');
+    initAdmin();
+  } else {
+    err.style.display='block';
+  }
+}
+function doLogout(){ currentUser=null; go('s-home'); }
+document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ===== ADMIN =====
+function initAdmin(){
+  // Onglet Comptes visible uniquement pour l'admin
+  const tabC=document.getElementById('tab-comptes');
+  if(tabC) tabC.style.display=currentUser&&currentUser.role==='admin'?'':'none';
+  renderStats(); renderAdmStats(); renderList(); initMap();
+}
+
+function renderStats(){
+  const r=getR();
+  const tot=r.length,recu=r.filter(x=>x.status==='recu').length,cours=r.filter(x=>x.status==='cours').length,regle=r.filter(x=>x.status==='regle').length;
+  document.getElementById('adm-stats').innerHTML=`
+    <div class="stat"><div class="stat-n">${tot}</div><div class="stat-l">Total</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--warn)">${recu+cours}</div><div class="stat-l">En attente</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--success)">${regle}</div><div class="stat-l">Résolus</div></div>`;
+}
+
+function renderList(){
+  const r=getR().filter(x=>adFilter==='all'||x.status===adFilter).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const el=document.getElementById('adm-list');
+  if(!r.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Aucun signalement pour ce filtre</div>';return;}
+  el.innerHTML=r.map(x=>`
+    <div class="arcard">
+      <div class="arcard-top"><span class="arcard-tk">${x.ticket}</span>${stBadge(x.status)}</div>
+      <div style="font-size:13px;margin:4px 0">${x.typeIco||'💧'} ${x.typeLabel} &nbsp;·&nbsp; 📍 ${x.quartier}</div>
+      <div style="font-size:11px;color:var(--muted)">${fmtDt(x.date)}${x.notes?' &nbsp;·&nbsp; 📝 '+x.notes:''}</div>
+      ${x.actions&&x.actions.length?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-l)">${x.actions.map(a=>`<div style="font-size:11px;color:var(--muted)">🕐 ${fmtDt(a.at)} — <b>${a.by}</b> → ${a.action}</div>`).join('')}</div>`:''}
+      <div class="arcard-acts">
+        ${x.status==='recu'?`<button class="btn-sm btn-cours-sm" onclick="updSt('${x.ticket}','cours')">🔧 En cours</button>`:''}
+        ${x.status!=='regle'?`<button class="btn-sm btn-regle-sm" onclick="updSt('${x.ticket}','regle')">✅ Marquer réglée</button>`:`<button class="btn-sm" style="background:var(--border-l);color:var(--muted);cursor:default">✅ Réglée</button>`}
+      </div>
+    </div>`).join('');
+}
+
+function setF(f,el){
+  adFilter=f;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  renderList();
+}
+
+function updSt(tk,st){
+  const r=getR(), x=r.find(a=>a.ticket===tk); if(!x) return;
+  x.status=st;
+  if(st==='regle') x.dateResolved=new Date().toISOString();
+  if(!x.actions) x.actions=[];
+  x.actions.push({by:currentUser?currentUser.nom:'Inconnu',action:stLbl(st),at:new Date().toISOString()});
+  setR(r);
+  renderStats(); renderList(); renderAdmStats(); refreshMarkers();
+}
+
+// ===== KEYWORD =====
+function applyKw(){
+  const v=document.getElementById('kw-in').value.trim().toUpperCase();
+  const hint=document.getElementById('kw-hint');
+  const m=v.match(/^(REGLE|COURS|RECU)\s+(#\d+)$/);
+  if(!m){ hint.textContent='⚠️ Format invalide. Exemple : REGLE #003'; hint.style.color='var(--danger)'; return; }
+  const stMap={REGLE:'regle',COURS:'cours',RECU:'recu'};
+  const tk=m[2], st=stMap[m[1]];
+  const r=getR(), x=r.find(a=>a.ticket===tk);
+  if(!x){ hint.textContent=`⚠️ Ticket ${tk} introuvable`; hint.style.color='var(--danger)'; return; }
+  x.status=st; if(st==='regle') x.dateResolved=new Date().toISOString();
+  if(!x.actions) x.actions=[];
+  x.actions.push({by:currentUser?currentUser.nom:'Terrain (mot-clé)',action:stLbl(st),at:new Date().toISOString()});
+  setR(r);
+  renderStats(); renderList(); renderAdmStats(); refreshMarkers();
+  hint.textContent=`✅ ${tk} mis à jour → ${stLbl(st)}`; hint.style.color='var(--success)';
+  document.getElementById('kw-in').value='';
+  setTimeout(()=>{ hint.textContent='Mots-clés : REGLE · COURS · RECU + numéro du ticket'; hint.style.color='var(--muted)'; },3500);
+}
+
+// ===== STATS VIEW =====
+function renderAdmStats(){
+  const r=getR();
+  const el=document.getElementById('adm-statsview');
+  if(!r.length){ el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Aucune donnée disponible</div>'; return; }
+
+  const byQ={};
+  r.forEach(x=>{ if(!byQ[x.quartier]) byQ[x.quartier]={total:0,recu:0,cours:0,regle:0}; byQ[x.quartier].total++; byQ[x.quartier][x.status]++; });
+  const qSorted=Object.entries(byQ).sort((a,b)=>b[1].total-a[1].total);
+  const resolved=r.filter(x=>x.status==='regle'&&x.dateResolved);
+  const avgH=resolved.length?Math.round(resolved.reduce((s,x)=>s+(new Date(x.dateResolved)-new Date(x.date))/36e5,0)/resolved.length):null;
+  const byT={};
+  r.forEach(x=>{ byT[x.typeLabel]=(byT[x.typeLabel]||0)+1; });
+  const tSorted=Object.entries(byT).sort((a,b)=>b[1]-a[1]);
+
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-weight:800;font-size:16px">📊 Rapport d'activité</div>
+      <button onclick="genRapport()" style="background:var(--p);color:#fff;border:none;border-radius:12px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer">📄 Publier le rapport</button>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">🏘 Par quartier</div>
+      ${qSorted.map(([q,v])=>`
+        <div style="padding:8px 0;border-bottom:1px solid var(--border-l)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:600">${q}</span>
+            <span style="font-weight:800;color:var(--p)">${v.total}</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <span style="font-size:11px;color:#1D4ED8">📥 ${v.recu} reçus</span>
+            <span style="font-size:11px;color:var(--warn)">🔧 ${v.cours} en cours</span>
+            <span style="font-size:11px;color:var(--success)">✅ ${v.regle} réglés</span>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">🔧 Types de pannes</div>
+      ${tSorted.map(([t,n])=>`
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-l)">
+          <span style="font-size:13px">${t}</span>
+          <span style="font-weight:700;color:var(--p)">${n}</span>
+        </div>`).join('')}
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">⏱ Délai moyen de résolution</div>
+      ${avgH!==null?`<div style="font-size:28px;font-weight:800;color:var(--success)">${avgH}h</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">sur ${resolved.length} panne(s) résolue(s)</div>`
+      :`<div style="font-size:14px;color:var(--muted)">Aucune panne résolue pour l'instant</div>`}
+    </div>`;
+}
+
+function genRapport(){
+  const r=getR();
+  const byQ={};
+  r.forEach(x=>{ if(!byQ[x.quartier]) byQ[x.quartier]=[]; byQ[x.quartier].push(x); });
+  const now=new Date().toLocaleString('fr-FR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const tot=r.length, regle=r.filter(x=>x.status==='regle').length;
+
+  let html=`<div style="border-bottom:2px solid var(--border-l);padding-bottom:14px;margin-bottom:14px">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Généré le ${now}</div>
+    <div style="margin-top:8px;display:flex;gap:16px">
+      <span style="font-size:13px"><b>${tot}</b> signalement(s)</span>
+      <span style="font-size:13px;color:var(--success)"><b>${regle}</b> résolus</span>
+      <span style="font-size:13px;color:var(--warn)"><b>${tot-regle}</b> en attente</span>
+    </div>
+  </div>`;
+
+  Object.entries(byQ).forEach(([q,items])=>{
+    const rg=items.filter(x=>x.status==='regle').length;
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-weight:800;font-size:14px;color:var(--p);margin-bottom:8px;display:flex;justify-content:space-between">
+        <span>📍 ${q}</span><span>${items.length} signalement(s)</span>
+      </div>
+      ${items.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(x=>`
+        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <span style="font-weight:700;color:var(--p);font-size:13px">${x.ticket}</span>
+            <span style="font-size:13px;margin-left:8px">${x.typeIco||''} ${x.typeLabel}</span>${x.notes?`<div style="font-size:11px;color:var(--muted);margin-top:2px">📝 ${x.notes}</div>`:''}
+            <div style="font-size:11px;color:var(--muted)">${fmtDt(x.date)}</div>
+          </div>
+          ${stBadge(x.status)}
+        </div>`).join('')}
+      <div style="font-size:12px;color:var(--success);text-align:right;margin-top:4px">✅ ${rg}/${items.length} résolus</div>
+    </div>`;
+  });
+
+  document.getElementById('rapport-body').innerHTML=html;
+  document.getElementById('copy-ok').style.display='none';
+  document.getElementById('ov-rapport').classList.add('show');
+}
+
+function copyRapport(){
+  const r=getR();
+  const byQ={};
+  r.forEach(x=>{ if(!byQ[x.quartier]) byQ[x.quartier]=[]; byQ[x.quartier].push(x); });
+  const now=new Date().toLocaleString('fr-FR');
+  let txt=`VIGIL BLEU — Rapport de signalements\nGénéré le ${now}\nTotal : ${r.length} | Résolus : ${r.filter(x=>x.status==='regle').length} | En attente : ${r.filter(x=>x.status!=='regle').length}\n\n`;
+  Object.entries(byQ).forEach(([q,items])=>{
+    txt+=`━━━ ${q.toUpperCase()} (${items.length} signalement(s)) ━━━\n`;
+    items.forEach(x=>{ txt+=`  ${x.ticket} · ${x.typeLabel} · ${stLbl(x.status)} · ${fmtDt(x.date)}${x.notes?' · '+x.notes:''}\n`; });
+    txt+='\n';
+  });
+  navigator.clipboard.writeText(txt).then(()=>{
+    const ok=document.getElementById('copy-ok');
+    ok.style.display='block';
+    setTimeout(()=>ok.style.display='none',2500);
+  }).catch(()=>alert('Copie non disponible sur ce navigateur'));
+}
+
+// ===== MAP =====
+function mColor(s){ return s==='regle'?'#059669':s==='cours'?'#D97706':'#0077B6'; }
+function initMap(){
+  if(adMap){ refreshMarkers(); return; }
+  const r=getR(); const c=r.length&&r[0].lat?[r[0].lat,r[0].lng]:[14.693,-17.447];
+  adMap=L.map('amap',{zoomControl:true}).setView(c,14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(adMap);
+  refreshMarkers();
+}
+function refreshMarkers(){
+  if(!adMap) return;
+  adMarkers.forEach(m=>m.remove()); adMarkers=[];
+  getR().forEach(r=>{
+    if(!r.lat||!r.lng) return;
+    const ic=L.divIcon({className:'',html:`<div style="background:${mColor(r.status)};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></div>`,iconSize:[26,26],iconAnchor:[13,26]});
+    const mk=L.marker([r.lat,r.lng],{icon:ic}).addTo(adMap);
+    mk.bindPopup(`<div style="font-family:Inter,system-ui;min-width:140px"><b style="color:#0077B6">${r.ticket}</b><br>${r.typeIco||''} ${r.typeLabel}<br>📍 ${r.quartier}<br><span style="color:${mColor(r.status)};font-weight:700">${stLbl(r.status)}</span></div>`);
+    adMarkers.push(mk);
+  });
+  if(adMarkers.length>1){ try{adMap.fitBounds(adMarkers.map(m=>m.getLatLng()),{padding:[24,24]});}catch{} }
+}
+
+// ===== GESTION COMPTES =====
+function renderComptes(){
+  const acc=getAcc().filter(a=>a.role==='superviseur');
+  const el=document.getElementById('comptes-list');
+  if(!acc.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Aucun superviseur créé</div>'; return;
+  }
+  el.innerHTML=acc.map(a=>`
+    <div style="background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div>
+          <div style="font-weight:700;font-size:15px">${a.nom}</div>
+          <div style="font-size:12px;color:var(--muted)">${a.email}</div>
+        </div>
+        <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;${a.active?'background:#D1FAE5;color:#065F46':'background:#FEE2E2;color:#991B1B'}">${a.active?'✅ Actif':'🔴 Inactif'}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Créé le ${fmtDate(a.createdAt)}</div>
+      <button onclick="toggleCompte('${a.id}')" class="btn-sm" style="background:${a.active?'#FEE2E2':'#D1FAE5'};color:${a.active?'#991B1B':'#065F46'};width:100%;padding:9px">
+        ${a.active?'🔴 Désactiver ce compte':'✅ Activer ce compte'}
+      </button>
+    </div>`).join('');
+}
+
+function openNewCompte(){
+  document.getElementById('nc-nom').value='';
+  document.getElementById('nc-email').value='';
+  document.getElementById('nc-pass').value='';
+  document.getElementById('nc-err').style.display='none';
+  document.getElementById('ov-compte').classList.add('show');
+}
+
+function createCompte(){
+  const nom=document.getElementById('nc-nom').value.trim();
+  const email=document.getElementById('nc-email').value.trim().toLowerCase();
+  const pass=document.getElementById('nc-pass').value;
+  const errEl=document.getElementById('nc-err');
+  if(!nom||!email||!pass){ errEl.textContent='Veuillez remplir tous les champs.'; errEl.style.display='block'; return; }
+  const acc=getAcc();
+  if(acc.find(a=>a.email.toLowerCase()===email)){ errEl.textContent='Cet e-mail est déjà utilisé.'; errEl.style.display='block'; return; }
+  acc.push({id:'u'+Date.now(),role:'superviseur',nom,email,password:pass,active:true,createdAt:new Date().toISOString()});
+  setAcc(acc);
+  document.getElementById('ov-compte').classList.remove('show');
+  renderComptes();
+}
+
+function toggleCompte(id){
+  const acc=getAcc(), a=acc.find(x=>x.id===id); if(!a) return;
+  a.active=!a.active;
+  setAcc(acc);
+  renderComptes();
+}
+
+// ===== TABS =====
+function switchTab(t){
+  ['map','list','stats','comptes'].forEach(x=>{
+    const tab=document.getElementById('tab-'+x);
+    const pane=document.getElementById('pane-'+x);
+    if(tab) tab.classList.toggle('on',x===t);
+    if(pane) pane.classList.toggle('on',x===t);
+  });
+  if(t==='map') setTimeout(()=>adMap&&adMap.invalidateSize(),120);
+  if(t==='stats') renderAdmStats();
+  if(t==='comptes') renderComptes();
+}
+
+// ===== INIT =====
+renderTypes();
+</script>
+</body>
+</html>

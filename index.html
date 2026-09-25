@@ -705,8 +705,7 @@ const supabaseClient = window.supabase.createClient(
 
   if(error){
     console.error('Erreur Supabase :', error);
-    alert('Le signalement n’a pas pu être enregistré. Vérifie ta connexion internet.');
-    return;
+    alert('Erreur Supabase : ' + error.message + ' (code ' + error.code + ')');
   }
 
   // Garder aussi le signalement dans le téléphone

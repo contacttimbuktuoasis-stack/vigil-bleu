@@ -688,7 +688,7 @@ const supabaseClient = window.supabase.createClient(
 
   // Enregistrer le signalement dans Supabase
   const { error } = await supabaseClient
-    .from('rapports')
+    .from('reports')
     .insert([{
       id:rep.id,
       ticket:rep.ticket,

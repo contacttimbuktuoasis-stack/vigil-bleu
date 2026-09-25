@@ -687,22 +687,21 @@ const supabaseClient = window.supabase.createClient(
   };
 
   // Enregistrer le signalement dans Supabase
-  const { error } = await supabaseClient
-    .from('reports')
-    .insert([{
-      id:rep.id,
-      ticket:rep.ticket,
-      type:rep.type,
-      type_label:rep.typeLabel,
-      type_ico:rep.typeIco,
-      quartier:rep.quartier,
-      notes:rep.notes,
-      lat:rep.lat,
-      lng:rep.lng,
-      status:rep.status,
-      date:rep.date
-    }]);
-
+const { error } = await supabaseClient
+  .from('reports')
+  .insert([{
+    identifiant:rep.id,
+    billet:rep.ticket,
+    taper:rep.type,
+    type_label:rep.typeLabel,
+    type_ico:rep.typeIco,
+    quartier:rep.quartier,
+    notes:rep.notes,
+    lat:rep.lat,
+    lng:rep.lng,
+    statut:rep.status,
+    date:rep.date
+  }]);
   if(error){
     console.error('Erreur Supabase :', error);
     alert('Erreur Supabase : ' + error.message + ' (code ' + error.code + ')');

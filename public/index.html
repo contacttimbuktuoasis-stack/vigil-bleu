@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
@@ -661,18 +662,63 @@ function nextTk(){
   const mx=Math.max(...r.map(x=>parseInt(x.ticket.replace('#',''))||0));
   return '#'+String(mx+1).padStart(3,'0');
 }
-function createReport(){
+const SUPABASE_URL = 'https://iqirqhzylaistscfzei.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_na50dv1mgjnkbeOs4esdAQ_1EXzyAxg';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+  async function createReport(){
   const tk=nextTk();
+
   const rep={
-    id:'u'+Date.now(), ticket:tk,
-    type:F.type, typeLabel:F.typeLabel, typeIco:F.typeIco,
-    quartier:F.quartier, notes:F.notes,
-    lat:F.lat, lng:F.lng,
-    status:'recu', date:new Date().toISOString()
+    id:'u'+Date.now(),
+    ticket:tk,
+    type:F.type,
+    typeLabel:F.typeLabel,
+    typeIco:F.typeIco,
+    quartier:F.quartier,
+    notes:F.notes,
+    lat:F.lat,
+    lng:F.lng,
+    status:'recu',
+    date:new Date().toISOString()
   };
-  const r=getR(); r.push(rep); setR(r);
-  const m=getM(); m.push(tk); setM(m);
-  // Fill confirm screen
+
+  // Enregistrer le signalement dans Supabase
+  const { error } = await supabaseClient
+    .from('rapports')
+    .insert([{
+      id:rep.id,
+      ticket:rep.ticket,
+      type:rep.type,
+      type_label:rep.typeLabel,
+      type_ico:rep.typeIco,
+      quartier:rep.quartier,
+      notes:rep.notes,
+      lat:rep.lat,
+      lng:rep.lng,
+      status:rep.status,
+      date:rep.date
+    }]);
+
+  if(error){
+    console.error('Erreur Supabase :', error);
+    alert('Le signalement n’a pas pu être enregistré. Vérifie ta connexion internet.');
+    return;
+  }
+
+  // Garder aussi le signalement dans le téléphone
+  const r=getR();
+  r.push(rep);
+  setR(r);
+
+  const m=getM();
+  m.push(tk);
+  setM(m);
+
+  // Afficher l'écran de confirmation
   document.getElementById('c-tk').textContent=tk;
   document.getElementById('c-type').textContent=F.typeIco+' '+F.typeLabel;
   document.getElementById('c-qrt').textContent=F.quartier;

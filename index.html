@@ -690,16 +690,16 @@ const supabaseClient = window.supabase.createClient(
 const { error } = await supabaseClient
   .from('reports')
   .insert([{
-    identifiant:rep.id,
-    billet:rep.ticket,
-    taper:rep.type,
+    id:rep.id,
+    ticket:rep.ticket,
+    type:rep.type,
     type_label:rep.typeLabel,
     type_ico:rep.typeIco,
     quartier:rep.quartier,
     notes:rep.notes,
     lat:rep.lat,
     lng:rep.lng,
-    statut:rep.status,
+    status:rep.status,
     date:rep.date
   }]);
   if(error){

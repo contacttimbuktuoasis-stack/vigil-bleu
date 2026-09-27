@@ -583,41 +583,117 @@ let geoError='';
 let reportMap=null;
 let reportMarker=null;
 let reportAccuracyCircle=null;
+let geoWatchId=null;
+let bestGeoAccuracy=Infinity;
+let bestGeoPosition=null;
+let geoStartTime=0;
+
 function getGeo(){
-  geoState='loading'; geoError='';
-  setPill('⏳','Recherche de votre position…','Autorisez la localisation si votre téléphone le demande');
-  if(!window.isSecureContext){
-    geoState='error'; geoError='secure'; showGeoManual('La géolocalisation nécessite HTTPS (ou localhost).'); return;
-  }
-  if(!navigator.geolocation){
-    geoState='error'; geoError='unsupported'; showGeoManual('Ce navigateur ne prend pas en charge la géolocalisation.'); return;
-  }
-  navigator.geolocation.getCurrentPosition(geoSuccess, geoFail, {
-    enableHighAccuracy:true, timeout:20000, maximumAge:0
-  });
-}
-
-function geoSuccess(p){
-  const lat=p.coords.latitude, lng=p.coords.longitude;
-  if(!Number.isFinite(lat)||!Number.isFinite(lng)){ geoFail({code:2}); return; }
-
-  F.lat=lat;
-  F.lng=lng;
-  F.quartier='Position GPS';
-
-  geoState='ok';
+  geoState='loading';
   geoError='';
 
-  const acc=Number.isFinite(p.coords.accuracy)?Math.round(p.coords.accuracy):null;
+  bestGeoAccuracy=Infinity;
+  bestGeoPosition=null;
+  geoStartTime=Date.now();
+
+  if(geoWatchId!==null){
+    navigator.geolocation.clearWatch(geoWatchId);
+    geoWatchId=null;
+  }
 
   setPill(
-    '📍',
-    'Position confirmée',
-    `${lat.toFixed(5)}, ${lng.toFixed(5)}${acc?` · précision ~${acc} m`:''}`,
-    true
+    '⏳',
+    'Recherche de votre position…',
+    'Le GPS recherche la meilleure précision disponible'
   );
 
-  // Afficher la position réelle sur la carte
+  if(!window.isSecureContext){
+    geoState='error';
+    geoError='secure';
+    showGeoManual('La géolocalisation nécessite HTTPS (ou localhost).');
+    return;
+  }
+
+  if(!navigator.geolocation){
+    geoState='error';
+    geoError='unsupported';
+    showGeoManual('Ce navigateur ne prend pas en charge la géolocalisation.');
+    return;
+  }
+
+  geoWatchId=navigator.geolocation.watchPosition(
+    geoSuccess,
+    geoFail,
+    {
+      enableHighAccuracy:true,
+      timeout:30000,
+      maximumAge:0
+    }
+  );
+
+  // Après 30 secondes, utiliser la meilleure position obtenue
+  setTimeout(()=>{
+    if(geoWatchId===null) return;
+
+    navigator.geolocation.clearWatch(geoWatchId);
+    geoWatchId=null;
+
+    if(bestGeoPosition){
+      const p=bestGeoPosition;
+      const lat=p.coords.latitude;
+      const lng=p.coords.longitude;
+      const acc=Number.isFinite(p.coords.accuracy)
+        ? Math.round(p.coords.accuracy)
+        : null;
+
+      F.lat=lat;
+      F.lng=lng;
+      F.quartier='Position GPS';
+
+      geoState='ok';
+      geoError='';
+
+      setPill(
+        '📍',
+        acc!==null && acc<=50
+          ? 'Position obtenue'
+          : 'Position GPS disponible',
+        acc!==null
+          ? `Précision GPS ~${acc} m`
+          : 'Précision non disponible',
+        true
+      );
+
+      if(reportMap){
+        reportMap.setView([lat,lng],17);
+        reportMap.invalidateSize();
+      }
+
+    }else{
+      geoFail({code:3});
+    }
+  },30000);
+}
+function geoSuccess(p){
+  const lat=p.coords.latitude;
+  const lng=p.coords.longitude;
+
+  if(!Number.isFinite(lat)||!Number.isFinite(lng)){
+    geoFail({code:2});
+    return;
+  }
+
+  const acc=Number.isFinite(p.coords.accuracy)
+    ? Math.round(p.coords.accuracy)
+    : null;
+
+  // Garder uniquement la meilleure position obtenue
+  if(acc!==null && acc<bestGeoAccuracy){
+    bestGeoAccuracy=acc;
+    bestGeoPosition=p;
+  }
+
+  // Afficher immédiatement la meilleure position sur la carte
   initReportMap();
 
   reportMap.setView([lat,lng],17);
@@ -643,24 +719,104 @@ function geoSuccess(p){
     }).addTo(reportMap);
   }
 
+  // Objectif : obtenir une précision de 20 m ou moins
+  if(acc!==null && acc<=20){
+
+    F.lat=lat;
+    F.lng=lng;
+    F.quartier='Position GPS';
+
+    geoState='ok';
+    geoError='';
+
+    setPill(
+      '📍',
+      'Position suffisamment précise',
+      `Précision GPS ~${acc} m`,
+      true
+    );
+
+    if(geoWatchId!==null){
+      navigator.geolocation.clearWatch(geoWatchId);
+      geoWatchId=null;
+    }
+
+    setTimeout(()=>{
+      if(reportMap) reportMap.invalidateSize();
+    },100);
+
+    return;
+  }
+
+  // La position est utilisable, mais on continue à chercher mieux
+  setPill(
+    '🔄',
+    'Amélioration de la précision…',
+    acc!==null
+      ? `Précision actuelle ~${acc} m — recherche d'une meilleure position`
+      : 'Recherche GPS en cours…'
+  );
+
   setTimeout(()=>{
     if(reportMap) reportMap.invalidateSize();
   },100);
 }
 
 function geoFail(err){
-  F.lat=null; F.lng=null; geoState='error';
+  // Si une bonne position a déjà été obtenue,
+  // on la conserve plutôt que d'afficher une erreur.
+  if(bestGeoPosition){
+    const p=bestGeoPosition;
+    const lat=p.coords.latitude;
+    const lng=p.coords.longitude;
+    const acc=Number.isFinite(p.coords.accuracy)
+      ? Math.round(p.coords.accuracy)
+      : null;
+
+    F.lat=lat;
+    F.lng=lng;
+    F.quartier='Position GPS';
+
+    geoState='ok';
+    geoError='';
+
+    setPill(
+      '📍',
+      'Position GPS disponible',
+      acc!==null
+        ? `Précision GPS ~${acc} m`
+        : 'Précision non disponible',
+      true
+    );
+
+    if(reportMap){
+      reportMap.setView([lat,lng],17);
+      reportMap.invalidateSize();
+    }
+
+    if(geoWatchId!==null){
+      navigator.geolocation.clearWatch(geoWatchId);
+      geoWatchId=null;
+    }
+
+    return;
+  }
+
+  F.lng=null;
+  geoState='error';
+
   if(err&&err.code===1) geoError='permission';
   else if(err&&err.code===3) geoError='timeout';
   else geoError='unavailable';
+
   const msg=geoError==='permission'
     ? 'Autorisation refusée. Activez la localisation pour obtenir le point exact.'
     : geoError==='timeout'
     ? 'Le GPS met trop de temps à répondre. Réessayez dans un endroit dégagé.'
     : 'Position GPS indisponible pour le moment.';
+
   showGeoManual(msg);
 }
-
 function showGeoManual(message='GPS indisponible. Vous pouvez saisir votre quartier.'){
   F.lat=null; F.lng=null;
   const pill=document.getElementById('geo-pill'); if(!pill) return;

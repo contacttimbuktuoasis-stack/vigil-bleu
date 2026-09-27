@@ -1030,17 +1030,40 @@ function renderList(){
   const el=document.getElementById('adm-list');
   if(!r.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Aucun signalement pour ce filtre</div>';return;}
   el.innerHTML=r.map(x=>`
-    <div class="arcard">
-      <div class="arcard-top"><span class="arcard-tk">${x.ticket}</span>${stBadge(x.status)}</div>
-      <div style="font-size:13px;margin:4px 0">${x.typeIco||'💧'} ${x.typeLabel} &nbsp;·&nbsp; 📍 ${x.quartier}</div>
-      <div style="font-size:11px;color:var(--muted)">${fmtDt(x.date)}${x.notes?' &nbsp;·&nbsp; 📝 '+x.notes:''}</div>
-      ${x.actions&&x.actions.length?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-l)">${x.actions.map(a=>`<div style="font-size:11px;color:var(--muted)">🕐 ${fmtDt(a.at)} — <b>${a.by}</b> → ${a.action}</div>`).join('')}</div>`:''}
-      <div class="arcard-acts">
-        ${x.status==='recu'?`<button class="btn-sm btn-cours-sm" onclick="updSt('${x.ticket}','cours')">🔧 En cours</button>`:''}
-        ${x.status!=='regle'?`<button class="btn-sm btn-regle-sm" onclick="updSt('${x.ticket}','regle')">✅ Marquer réglée</button>`:`<button class="btn-sm" style="background:var(--border-l);color:var(--muted);cursor:default">✅ Réglée</button>`}
-      </div>
-    </div>`).join('');
-}
+   <div class="arcard-acts">
+
+  ${x.lat!=null&&x.lng!=null?`
+    <button class="btn-sm" style="background:#DBEAFE;color:#1D4ED8"
+      onclick="openReportLocation('${x.ticket}')">
+      📍 Voir le lieu
+    </button>
+
+    <button class="btn-sm" style="background:#E0F2FE;color:#0369A1"
+      onclick="openReportRoute('${x.ticket}')">
+      🧭 Itinéraire
+    </button>
+
+    <button class="btn-sm" style="background:#F1F5F9;color:#334155"
+      onclick="shareReportLocation('${x.ticket}')">
+      🔗 Partager
+    </button>
+  `:`
+    <span style="font-size:11px;color:var(--muted)">
+      📍 Localisation GPS indisponible
+    </span>
+  `}
+
+  ${x.status==='recu'
+    ?`<button class="btn-sm btn-cours-sm" onclick="updSt('${x.ticket}','cours')">🔧 En cours</button>`
+    :''
+  }
+
+  ${x.status!=='regle'
+    ?`<button class="btn-sm btn-regle-sm" onclick="updSt('${x.ticket}','regle')">✅ Marquer réglée</button>`
+    :`<button class="btn-sm" style="background:var(--border-l);color:var(--muted);cursor:default">✅ Réglée</button>`
+  }
+
+</div>
 
 function setF(f,el){
   adFilter=f;
@@ -1190,7 +1213,28 @@ function copyRapport(){
     setTimeout(()=>ok.style.display='none',2500);
   }).catch(()=>alert('Copie non disponible sur ce navigateur'));
 }
+// ===== LOCALISATION DES SIGNALEMENTS =====
+function openReportLocation(tk){
+  const r=getR();
+  const x=r.find(a=>a.ticket===tk);
 
+  if(!x || x.lat==null || x.lng==null){
+    alert('La localisation GPS de ce signalement est indisponible.');
+    return;
+  }
+
+  const lat=Number(x.lat);
+  const lng=Number(x.lng);
+
+  if(!Number.isFinite(lat)||!Number.isFinite(lng)){
+    alert('Les coordonnées GPS de ce signalement sont invalides.');
+    return;
+  }
+
+  const url=`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+  window.open(url,'_blank');
+}
 // ===== MAP =====
 function mColor(s){ return s==='regle'?'#059669':s==='cours'?'#D97706':'#0077B6'; }
 function initMap(){

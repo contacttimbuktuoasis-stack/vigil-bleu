@@ -235,14 +235,25 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <div class="step-t">Votre localisation</div>
     <div class="step-sub">Votre position est détectée automatiquement. Vérifiez ou corrigez si besoin.</div>
 
-    <!-- Indicateur GPS -->
-    <div id="geo-pill" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border-l);border-radius:12px;padding:12px 14px;margin-bottom:14px">
-      <span style="font-size:18px">⏳</span>
+   
+<!-- Localisation GPS -->
+<div id="geo-pill" style="margin-bottom:14px">
+  <div id="report-map" style="height:280px;border-radius:18px;overflow:hidden;border:2px solid var(--border);background:var(--border-l)"></div>
+
+  <div style="margin-top:10px;background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:12px 14px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:22px">📍</span>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:var(--muted)">Géolocalisation en cours…</div>
+        <div id="geo-title" style="font-size:14px;font-weight:700;color:var(--muted)">
+          Recherche de votre position…
+        </div>
+        <div id="geo-detail" style="font-size:11px;color:var(--light);margin-top:3px">
+          Autorisez la localisation si votre téléphone le demande
+        </div>
       </div>
     </div>
-
+  </div>
+</div>
     <textarea class="notes-ta" id="notes-ta" rows="3" placeholder="Détails supplémentaires (facultatif) — ex : eau coulant depuis 2 jours…"></textarea>
   </div>
   <div class="foot" style="padding-bottom:max(16px, env(safe-area-inset-bottom, 16px))">
@@ -510,10 +521,16 @@ function startSignal(){
   document.getElementById('btn2').disabled=false;
   document.getElementById('notes-ta').value='';
   renderTypes();
-  getGeo();
-  go('s-step1');
-}
 
+  go('s-step1');
+
+  setTimeout(()=>{
+    initReportMap();
+    if(reportMap) reportMap.invalidateSize();
+  },150);
+
+  getGeo();
+}
 function renderTypes(){
   const g=document.getElementById('tgrid'); g.innerHTML='';
   document.getElementById('autre-field').style.display='none';
@@ -562,6 +579,10 @@ function checkAutreWords(ta){
 let geoState='idle';
 let geoError='';
 
+// Carte de localisation du citoyen
+let reportMap=null;
+let reportMarker=null;
+let reportAccuracyCircle=null;
 function getGeo(){
   geoState='loading'; geoError='';
   setPill('⏳','Recherche de votre position…','Autorisez la localisation si votre téléphone le demande');
@@ -579,10 +600,52 @@ function getGeo(){
 function geoSuccess(p){
   const lat=p.coords.latitude, lng=p.coords.longitude;
   if(!Number.isFinite(lat)||!Number.isFinite(lng)){ geoFail({code:2}); return; }
-  F.lat=lat; F.lng=lng; F.quartier='Position GPS';
-  geoState='ok'; geoError='';
+
+  F.lat=lat;
+  F.lng=lng;
+  F.quartier='Position GPS';
+
+  geoState='ok';
+  geoError='';
+
   const acc=Number.isFinite(p.coords.accuracy)?Math.round(p.coords.accuracy):null;
-  setPill('📍','Position confirmée',`${lat.toFixed(5)}, ${lng.toFixed(5)}${acc?` · précision ~${acc} m`:''}`,true);
+
+  setPill(
+    '📍',
+    'Position confirmée',
+    `${lat.toFixed(5)}, ${lng.toFixed(5)}${acc?` · précision ~${acc} m`:''}`,
+    true
+  );
+
+  // Afficher la position réelle sur la carte
+  initReportMap();
+
+  reportMap.setView([lat,lng],17);
+
+  if(reportMarker){
+    reportMarker.setLatLng([lat,lng]);
+  }else{
+    reportMarker=L.circleMarker([lat,lng],{
+      radius:9,
+      weight:3,
+      fillOpacity:1
+    }).addTo(reportMap);
+  }
+
+  if(reportAccuracyCircle){
+    reportAccuracyCircle.setLatLng([lat,lng]);
+    reportAccuracyCircle.setRadius(acc||30);
+  }else{
+    reportAccuracyCircle=L.circle([lat,lng],{
+      radius:acc||30,
+      weight:1,
+      fillOpacity:0.12
+    }).addTo(reportMap);
+  }
+
+  setTimeout(()=>{
+    if(reportMap) reportMap.invalidateSize();
+  },100);
 }
 
 function geoFail(err){
@@ -618,10 +681,30 @@ function setQuartierManual(val){ F.quartier=val.trim()||'Quartier non précisé'
 function useFallbackGeo(){ showGeoManual(); }
 
 function setPill(ico,label,coords,ok=false){
-  const el=document.getElementById('geo-pill'); if(!el) return;
-  el.innerHTML=`<span style="font-size:18px">${ico}</span><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:${ok?'var(--success)':'var(--muted)'}">${label}</div>${coords?`<div style="font-size:11px;color:var(--light);margin-top:1px">${coords}</div>`:''}</div>`;
-}
+  const title=document.getElementById('geo-title');
+  const detail=document.getElementById('geo-detail');
 
+  if(!title || !detail) return;
+
+  title.textContent=label;
+  title.style.color=ok?'var(--success)':'var(--muted)';
+
+  detail.textContent=coords||'';
+}
+function initReportMap(){
+  const mapEl=document.getElementById('report-map');
+  if(!mapEl || reportMap) return;
+
+  reportMap=L.map('report-map',{
+    zoomControl:true,
+    attributionControl:true
+  }).setView([12.6392,-8.0029],13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'© OpenStreetMap'
+  }).addTo(reportMap);
+}
 // ===== HAVERSINE =====
 function hdist(a,b,c,d){
   const R=6371000,dA=(c-a)*Math.PI/180,dB=(d-b)*Math.PI/180;

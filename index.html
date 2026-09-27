@@ -1213,6 +1213,7 @@ function copyRapport(){
     setTimeout(()=>ok.style.display='none',2500);
   }).catch(()=>alert('Copie non disponible sur ce navigateur'));
 }
+  
 // ===== LOCALISATION DES SIGNALEMENTS =====
 function openReportLocation(tk){
   const r=getR();
@@ -1232,6 +1233,28 @@ function openReportLocation(tk){
   }
 
   const url=`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+  window.open(url,'_blank');
+}
+
+  function openReportRoute(tk){
+  const r=getR();
+  const x=r.find(a=>a.ticket===tk);
+
+  if(!x || x.lat==null || x.lng==null){
+    alert('La localisation GPS de ce signalement est indisponible.');
+    return;
+  }
+
+  const lat=Number(x.lat);
+  const lng=Number(x.lng);
+
+  if(!Number.isFinite(lat)||!Number.isFinite(lng)){
+    alert('Les coordonnées GPS de ce signalement sont invalides.');
+    return;
+  }
+
+  const url=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
 
   window.open(url,'_blank');
 }

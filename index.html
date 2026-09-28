@@ -1170,13 +1170,48 @@ function setF(f,el){
 }
 
 function updSt(tk,st){
-  const r=getR(), x=r.find(a=>a.ticket===tk); if(!x) return;
+  const r=getR(), x=r.find(a=>a.ticket===tk);
+  if(!x) return;
+
   x.status=st;
-  if(st==='regle') x.dateResolved=new Date().toISOString();
+
+  if(st==='regle'){
+    x.dateResolved=new Date().toISOString();
+  }
+
   if(!x.actions) x.actions=[];
-  x.actions.push({by:currentUser?currentUser.nom:'Inconnu',action:stLbl(st),at:new Date().toISOString()});
+
+  x.actions.push({
+    by:currentUser?currentUser.nom:'Inconnu',
+    action:stLbl(st),
+    at:new Date().toISOString()
+  });
+
   setR(r);
-  renderStats(); renderList(); renderAdmStats(); refreshMarkers();
+
+  renderStats();
+  renderList();
+  renderAdmStats();
+
+  if(st==='regle'){
+    // Retirer immédiatement le marqueur réglé de la carte
+    adMarkers=adMarkers.filter(m=>{
+      const p=m.getLatLng();
+
+      if(
+        Number(p.lat)===Number(x.lat) &&
+        Number(p.lng)===Number(x.lng)
+      ){
+        m.remove();
+        return false;
+      }
+
+      return true;
+    });
+  }else{
+    // Pour Reçu → En cours, actualiser normalement la carte
+    refreshMarkers();
+  }
 }
 
 // ===== KEYWORD =====

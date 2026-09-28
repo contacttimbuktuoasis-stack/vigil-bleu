@@ -1258,6 +1258,48 @@ function openReportLocation(tk){
 
   window.open(url,'_blank');
 }
+  function shareReportLocation(tk){
+  const r=getR();
+  const x=r.find(a=>a.ticket===tk);
+
+  if(!x || x.lat==null || x.lng==null){
+    alert('La localisation GPS de ce signalement est indisponible.');
+    return;
+  }
+
+  const lat=Number(x.lat);
+  const lng=Number(x.lng);
+
+  if(!Number.isFinite(lat)||!Number.isFinite(lng)){
+    alert('Les coordonnées GPS de ce signalement sont invalides.');
+    return;
+  }
+
+  const mapUrl=`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+  const message=
+`🚰 Vigil Bleu — Intervention
+
+Ticket : ${x.ticket}
+Problème : ${x.typeLabel||'Signalement'}
+Quartier : ${x.quartier||'Non renseigné'}
+
+📍 Localisation :
+${mapUrl}`;
+
+  if(navigator.share){
+    navigator.share({
+      title:`Vigil Bleu — ${x.ticket}`,
+      text:message
+    }).catch(()=>{});
+  }else if(navigator.clipboard){
+    navigator.clipboard.writeText(message)
+      .then(()=>alert('Les informations du signalement ont été copiées.'))
+      .catch(()=>alert(message));
+  }else{
+    alert(message);
+  }
+}
 // ===== MAP =====
 function mColor(s){ return s==='regle'?'#059669':s==='cours'?'#D97706':'#0077B6'; }
 function initMap(){

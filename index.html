@@ -155,6 +155,30 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .apane{display:none;flex:1;overflow-y:auto}
 .apane.on{display:block}
 #amap{height:310px}
+
+.map-legend{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:10px 14px;
+  background:var(--card);
+  border-top:1px solid var(--border-l);
+  font-size:11px;
+  color:var(--muted);
+}
+
+.map-legend-item{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.map-legend-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+}
 .filters{display:flex;gap:8px;padding:10px 14px;overflow-x:auto}
 .fchip{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;color:var(--text);transition:all .15s}
 .fchip.on{background:var(--p);color:#fff;border-color:var(--p)}
@@ -372,43 +396,43 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <input class="kw-in" id="kw-in" placeholder="ex : REGLE #003" oninput="this.value=this.value.toUpperCase()">
       <button class="kw-apply" onclick="applyKw()">Valider</button>
     </div>
-    <div class="kw-hint" id="kw-hint">Mots-clés : REGLE · COURS · RECU &nbsp;+&nbsp; numéro du ticket</div>
+    <div class="kw-hint" id="kw-hint">
+      Mots-clés : REGLE · COURS · RECU &nbsp;+&nbsp; numéro du ticket
+    </div>
   </div>
 
   <div class="atabs">
     <div class="atab on" id="tab-map" onclick="switchTab('map')">🗺 Carte</div>
     <div class="atab" id="tab-list" onclick="switchTab('list')">📋 Liste</div>
     <div class="atab" id="tab-stats" onclick="switchTab('stats')">📊 Stats</div>
-    <div class="atab" id="tab-comptes" onclick="switchTab('comptes')" style="display:none">👥 Comptes</div>
-  </div>
-
-  <div class="apane on" id="pane-map"><div id="amap"></div></div>
-
-  <div class="apane" id="pane-list">
-    <div class="filters">
-      <div class="fchip on" onclick="setF('all',this)">Tous</div>
-      <div class="fchip" onclick="setF('recu',this)">📥 Reçus</div>
-      <div class="fchip" onclick="setF('cours',this)">🔧 En cours</div>
-      <div class="fchip" onclick="setF('regle',this)">✅ Réglés</div>
+    <div class="atab" id="tab-comptes" onclick="switchTab('comptes')" style="display:none">
+      👥 Comptes
     </div>
-    <div id="adm-list"></div>
   </div>
 
-  <div class="apane" id="pane-stats">
-    <div style="padding:16px" id="adm-statsview"></div>
-  </div>
+  <!-- CARTE -->
+  <div class="apane on" id="pane-map">
+    <div id="amap"></div>
 
-  <!-- Onglet Comptes (admin uniquement) -->
-  <div class="apane" id="pane-comptes">
-    <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-l)">
-      <div style="font-size:15px;font-weight:800">Comptes superviseurs</div>
-      <button onclick="openNewCompte()" style="background:var(--p);color:#fff;border:none;border-radius:11px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer">+ Nouveau</button>
+    <div class="map-legend">
+      <div class="map-legend-item">
+        <span class="map-legend-dot" style="background:#0077B6"></span>
+        Reçu
+      </div>
+
+      <div class="map-legend-item">
+        <span class="map-legend-dot" style="background:#D97706"></span>
+        En cours
+      </div>
+
+      <div class="map-legend-item">
+        <span class="map-legend-dot" style="background:#059669"></span>
+        Réglé
+      </div>
     </div>
-    <div id="comptes-list" style="padding:12px 14px"></div>
   </div>
 
-  </div>
-</div>
+  <!-- LISTE -->
 
 <!-- ========= MODAL NOUVEAU COMPTE ========= -->
 <div class="ov" id="ov-compte">

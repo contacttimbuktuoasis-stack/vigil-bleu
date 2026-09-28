@@ -433,6 +433,38 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   </div>
 
   <!-- LISTE -->
+  <div class="apane" id="pane-list">
+    <div class="filters">
+      <div class="fchip on" onclick="setF('all',this)">Tous</div>
+      <div class="fchip" onclick="setF('recu',this)">📥 Reçus</div>
+      <div class="fchip" onclick="setF('cours',this)">🔧 En cours</div>
+      <div class="fchip" onclick="setF('regle',this)">✅ Réglés</div>
+    </div>
+
+    <div id="adm-list"></div>
+  </div>
+
+  <!-- STATISTIQUES -->
+  <div class="apane" id="pane-stats">
+    <div style="padding:16px" id="adm-statsview"></div>
+  </div>
+
+  <!-- COMPTES -->
+  <div class="apane" id="pane-comptes">
+    <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-l)">
+      <div style="font-size:15px;font-weight:800">
+        Comptes superviseurs
+      </div>
+
+      <button
+        onclick="openNewCompte()"
+        style="background:var(--p);color:#fff;border:none;border-radius:11px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer">
+        + Nouveau
+      </button>
+    </div>
+
+    <div id="comptes-list" style="padding:12px 14px"></div>
+  </div>
 
 <!-- ========= MODAL NOUVEAU COMPTE ========= -->
 <div class="ov" id="ov-compte">

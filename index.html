@@ -1025,46 +1025,87 @@ function renderStats(){
     <div class="stat"><div class="stat-n" style="color:var(--success)">${regle}</div><div class="stat-l">Résolus</div></div>`;
 }
 
+
 function renderList(){
   const r=getR().filter(x=>adFilter==='all'||x.status===adFilter).sort((a,b)=>new Date(b.date)-new Date(a.date));
   const el=document.getElementById('adm-list');
-  if(!r.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Aucun signalement pour ce filtre</div>';return;}
+
+  if(!r.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Aucun signalement pour ce filtre</div>';
+    return;
+  }
+
   el.innerHTML=r.map(x=>`
-   <div class="arcard-acts">
+    <div class="arcard">
+      <div class="arcard-top">
+        <span class="arcard-tk">${x.ticket}</span>
+        ${stBadge(x.status)}
+      </div>
 
-  ${x.lat!=null&&x.lng!=null?`
-    <button class="btn-sm" style="background:#DBEAFE;color:#1D4ED8"
-      onclick="openReportLocation('${x.ticket}')">
-      📍 Voir le lieu
-    </button>
+      <div style="font-size:13px;margin:4px 0">
+        ${x.typeIco||'💧'} ${x.typeLabel}
+        &nbsp;·&nbsp;
+        📍 ${x.quartier}
+      </div>
 
-    <button class="btn-sm" style="background:#E0F2FE;color:#0369A1"
-      onclick="openReportRoute('${x.ticket}')">
-      🧭 Itinéraire
-    </button>
+      <div style="font-size:11px;color:var(--muted)">
+        ${fmtDt(x.date)}${x.notes?' &nbsp;·&nbsp; 📝 '+x.notes:''}
+      </div>
 
-    <button class="btn-sm" style="background:#F1F5F9;color:#334155"
-      onclick="shareReportLocation('${x.ticket}')">
-      🔗 Partager
-    </button>
-  `:`
-    <span style="font-size:11px;color:var(--muted)">
-      📍 Localisation GPS indisponible
-    </span>
-  `}
+      ${x.actions&&x.actions.length
+        ?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-l)">
+            ${x.actions.map(a=>`
+              <div style="font-size:11px;color:var(--muted)">
+                🕐 ${fmtDt(a.at)} — <b>${a.by}</b> → ${a.action}
+              </div>
+            `).join('')}
+          </div>`
+        :''
+      }
 
-  ${x.status==='recu'
-    ?`<button class="btn-sm btn-cours-sm" onclick="updSt('${x.ticket}','cours')">🔧 En cours</button>`
-    :''
-  }
+      <div class="arcard-acts">
 
-  ${x.status!=='regle'
-    ?`<button class="btn-sm btn-regle-sm" onclick="updSt('${x.ticket}','regle')">✅ Marquer réglée</button>`
-    :`<button class="btn-sm" style="background:var(--border-l);color:var(--muted);cursor:default">✅ Réglée</button>`
-  }
+        ${x.lat!=null&&x.lng!=null?`
+          <button class="btn-sm" style="background:#DBEAFE;color:#1D4ED8"
+            onclick="openReportLocation('${x.ticket}')">
+            📍 Voir le lieu
+          </button>
 
-</div>
+          <button class="btn-sm" style="background:#E0F2FE;color:#0369A1"
+            onclick="openReportRoute('${x.ticket}')">
+            🧭 Itinéraire
+          </button>
 
+          <button class="btn-sm" style="background:#F1F5F9;color:#334155"
+            onclick="shareReportLocation('${x.ticket}')">
+            🔗 Partager
+          </button>
+        `:`
+          <span style="font-size:11px;color:var(--muted)">
+            📍 Localisation GPS indisponible
+          </span>
+        `}
+
+        ${x.status==='recu'
+          ?`<button class="btn-sm btn-cours-sm" onclick="updSt('${x.ticket}','cours')">
+              🔧 En cours
+            </button>`
+          :''
+        }
+
+        ${x.status!=='regle'
+          ?`<button class="btn-sm btn-regle-sm" onclick="updSt('${x.ticket}','regle')">
+              ✅ Marquer réglée
+            </button>`
+          :`<button class="btn-sm" style="background:var(--border-l);color:var(--muted);cursor:default">
+              ✅ Réglée
+            </button>`
+        }
+
+      </div>
+    </div>
+  `).join('');
+}
 function setF(f,el){
   adFilter=f;
   document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));

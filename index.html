@@ -1344,10 +1344,20 @@ ${mapUrl}`;
 // ===== MAP =====
 function mColor(s){ return s==='regle'?'#059669':s==='cours'?'#D97706':'#0077B6'; }
 function initMap(){
-  if(adMap){ refreshMarkers(); return; }
-  const r=getR(); const c=r.length&&r[0].lat?[r[0].lat,r[0].lng]:[14.693,-17.447];
-  adMap=L.map('amap',{zoomControl:true}).setView(c,14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(adMap);
+  if(adMap){
+    refreshMarkers();
+    return;
+  }
+
+  adMap=L.map('amap',{
+    zoomControl:true
+  }).setView([12.6392,-8.0029],13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap',
+    maxZoom:19
+  }).addTo(adMap);
+
   refreshMarkers();
 }
 function refreshMarkers(){

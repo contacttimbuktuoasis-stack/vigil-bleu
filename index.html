@@ -982,11 +982,8 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_PUBLISHABLE_KEY
 );
   async function createReport(){
-  const tk=nextTk();
-
   const rep={
     id:'u'+Date.now(),
-    ticket:tk,
     type:F.type,
     typeLabel:F.typeLabel,
     typeIco:F.typeIco,
@@ -999,25 +996,32 @@ const supabaseClient = window.supabase.createClient(
   };
 
   // Enregistrer le signalement dans Supabase
-const { error } = await supabaseClient
-  .from('reports')
-  .insert([{
-    id:rep.id,
-    ticket:rep.ticket,
-    type:rep.type,
-    type_label:rep.typeLabel,
-    type_ico:rep.typeIco,
-    quartier:rep.quartier,
-    notes:rep.notes,
-    lat:rep.lat,
-    lng:rep.lng,
-    status:rep.status,
-    date:rep.date
-  }]);
+  // Le numéro de ticket est créé automatiquement par Supabase
+  const { data, error } = await supabaseClient
+    .from('reports')
+    .insert([{
+      id:rep.id,
+      type:rep.type,
+      type_label:rep.typeLabel,
+      type_ico:rep.typeIco,
+      quartier:rep.quartier,
+      notes:rep.notes,
+      lat:rep.lat,
+      lng:rep.lng,
+      status:rep.status,
+      date:rep.date
+    }])
+    .select('ticket')
+    .single();
+
   if(error){
     console.error('Erreur Supabase :', error);
     alert('Erreur Supabase : ' + error.message + ' (code ' + error.code + ')');
+    return;
   }
+
+  // Récupérer le ticket créé automatiquement par Supabase
+  rep.ticket=data.ticket;
 
   // Garder aussi le signalement dans le téléphone
   const r=getR();
@@ -1025,11 +1029,11 @@ const { error } = await supabaseClient
   setR(r);
 
   const m=getM();
-  m.push(tk);
+  m.push(rep.ticket);
   setM(m);
 
   // Afficher l'écran de confirmation
-  document.getElementById('c-tk').textContent=tk;
+  document.getElementById('c-tk').textContent=rep.ticket;
   document.getElementById('c-type').textContent=F.typeIco+' '+F.typeLabel;
   document.getElementById('c-qrt').textContent=F.quartier;
   document.getElementById('c-date').textContent=fmtDt(rep.date);

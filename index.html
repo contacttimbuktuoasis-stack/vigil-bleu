@@ -403,7 +403,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
   <div class="atabs">
     <div class="atab on" id="tab-map" onclick="switchTab('map')">🗺 Carte</div>
-    <div class="atab" id="tab-list" onclick="switchTab('list')">📋 Liste</div>
+    <div class="atab" id="tab-list" onclick="switchTab('list')">
+  📋 Liste <span id="new-reports-badge" style="display:none;background:#DC2626;color:#fff;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:800;margin-left:4px">0</span>
+</div>
     <div class="atab" id="tab-stats" onclick="switchTab('stats')">📊 Stats</div>
     <div class="atab" id="tab-comptes" onclick="switchTab('comptes')" style="display:none">
       👥 Comptes
@@ -521,9 +523,26 @@ function getAcc(){ try{return JSON.parse(localStorage.getItem('vb_acc')||'null')
 function setAcc(a){ try{localStorage.setItem('vb_acc',JSON.stringify(a))}catch{} }
 
 // ===== STATE =====
-let F = {photo:null,photoUrl:null,type:null,typeLabel:null,typeIco:null,lat:null,lng:null,quartier:'Quartier',notes:''};
+let F = {
+  photo:null,
+  photoUrl:null,
+  type:null,
+  typeLabel:null,
+  typeIco:null,
+  lat:null,
+  lng:null,
+  quartier:'Quartier',
+  notes:''
+};
+
 let skipDupli = false;
-let adMap = null, adFilter = 'all', adMarkers = [];
+
+let adMap = null,
+    adFilter = 'all',
+    adMarkers = [];
+
+let newReportsCount = 0;
+
 let currentUser = null; // utilisateur connecté
 
 // ===== TYPES =====
@@ -1586,7 +1605,18 @@ function switchTab(t){
   if(t==='stats') renderAdmStats();
   if(t==='comptes') renderComptes();
 }
+function updateNewReportsBadge(){
+  const badge=document.getElementById('new-reports-badge');
 
+  if(!badge) return;
+
+  if(newReportsCount>0){
+    badge.textContent=newReportsCount;
+    badge.style.display='inline-block';
+  }else{
+    badge.style.display='none';
+  }
+}
 // ===== INIT =====
 renderTypes();
 </script>

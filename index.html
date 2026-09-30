@@ -1234,8 +1234,7 @@ function setF(f,el){
   el.classList.add('on');
   renderList();
 }
-
-function updSt(tk,st){
+async function updSt(tk,st){
   const r=getR(), x=r.find(a=>a.ticket===tk);
   if(!x) return;
 
@@ -1253,6 +1252,21 @@ function updSt(tk,st){
     at:new Date().toISOString()
   });
 
+  // Enregistrer le changement dans Supabase
+  const { error } = await supabaseClient
+    .from('reports')
+    .update({
+      status:x.status
+    })
+    .eq('ticket',x.ticket);
+
+  if(error){
+    console.error('Erreur mise à jour Supabase :',error);
+    alert('Le statut n’a pas pu être synchronisé avec Supabase : '+error.message);
+    return;
+  }
+
+  // Mettre à jour le stockage local
   setR(r);
 
   renderStats();
@@ -1279,6 +1293,7 @@ function updSt(tk,st){
     refreshMarkers();
   }
 }
+
 
 // ===== KEYWORD =====
 function applyKw(){

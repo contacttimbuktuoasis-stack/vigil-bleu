@@ -1454,7 +1454,7 @@ function initMap(){
 function refreshMarkers(){
   if(!adMap) return;
   adMarkers.forEach(m=>m.remove()); adMarkers=[];
-  getR().forEach(r=>{
+  getR().filter(r=>r.status!=='regle').forEach(r=>{
     if(!r.lat||!r.lng) return;
     const ic=L.divIcon({className:'',html:`<div style="background:${mColor(r.status)};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></div>`,iconSize:[26,26],iconAnchor:[13,26]});
     const mk=L.marker([r.lat,r.lng],{icon:ic}).addTo(adMap);

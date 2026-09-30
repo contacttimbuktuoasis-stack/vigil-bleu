@@ -1082,13 +1082,60 @@ function doLogin(){
 }
 function doLogout(){ currentUser=null; go('s-home'); }
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+// ===== SYNC SUPABASE → ADMIN =====
+async function syncReportsFromSupabase(){
+  try{
+    const { data, error } = await supabaseClient
+      .from('reports')
+      .select('*')
+      .order('date', { ascending:false });
 
+    if(error){
+      console.error('Erreur synchronisation Supabase :', error);
+      return;
+    }
+
+    if(!Array.isArray(data)) return;
+
+    const reports = data.map(x=>({
+      id:x.id,
+      ticket:x.ticket,
+      type:x.type,
+      typeLabel:x.type_label,
+      typeIco:x.type_ico,
+      quartier:x.quartier,
+      notes:x.notes,
+      lat:x.lat,
+      lng:x.lng,
+      status:x.status,
+      date:x.date
+    }));
+
+    setR(reports);
+
+    console.log(
+      'Synchronisation Supabase réussie :',
+      reports.length,
+      'signalement(s)'
+    );
+
+  }catch(err){
+    console.error('Erreur synchronisation :', err);
+  }
+}
+  
 // ===== ADMIN =====
-function initAdmin(){
+async function initAdmin(){
   // Onglet Comptes visible uniquement pour l'admin
   const tabC=document.getElementById('tab-comptes');
   if(tabC) tabC.style.display=currentUser&&currentUser.role==='admin'?'':'none';
-  renderStats(); renderAdmStats(); renderList(); initMap();
+
+  await syncReportsFromSupabase();
+
+  renderStats();
+  renderAdmStats();
+  renderList();
+  initMap();
 }
 
 function renderStats(){

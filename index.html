@@ -1162,31 +1162,60 @@ function removePhoto(){
     date:new Date().toISOString()
   };
 
-  // Enregistrer le signalement dans Supabase
-  // Le numéro de ticket est créé automatiquement par Supabase
-  const { data, error } = await supabaseClient
-    .from('reports')
-    .insert([{
-      id:rep.id,
-      type:rep.type,
-      type_label:rep.typeLabel,
-      type_ico:rep.typeIco,
-      quartier:rep.quartier,
-      notes:rep.notes,
-      lat:rep.lat,
-      lng:rep.lng,
-      status:rep.status,
-      date:rep.date
-    }])
-    .select('ticket')
-    .single();
+// Enregistrer la photo dans Supabase Storage si elle existe
+let photoUrl = null;
 
-  if(error){
-    console.error('Erreur Supabase :', error);
-    alert('Erreur Supabase : ' + error.message + ' (code ' + error.code + ')');
+if(F.photo){
+  const ext = F.photo.name.split('.').pop().toLowerCase() || 'jpg';
+  const filePath = `${rep.id}.${ext}`;
+
+  const { error:photoError } = await supabaseClient
+    .storage
+    .from('report-photos')
+    .upload(filePath, F.photo, {
+      contentType:F.photo.type,
+      upsert:false
+    });
+
+  if(photoError){
+    console.error('Erreur upload photo :', photoError);
+    alert('La photo n’a pas pu être envoyée : ' + photoError.message);
     return;
   }
 
+  const { data:photoData } = supabaseClient
+    .storage
+    .from('report-photos')
+    .getPublicUrl(filePath);
+
+  photoUrl = photoData.publicUrl;
+}
+
+// Enregistrer le signalement dans Supabase
+// Le numéro de ticket est créé automatiquement par Supabase
+const { data, error } = await supabaseClient
+  .from('reports')
+  .insert([{
+    id:rep.id,
+    type:rep.type,
+    type_label:rep.typeLabel,
+    type_ico:rep.typeIco,
+    quartier:rep.quartier,
+    notes:rep.notes,
+    lat:rep.lat,
+    lng:rep.lng,
+    status:rep.status,
+    date:rep.date,
+    photo_url:photoUrl
+  }])
+  .select('ticket')
+  .single();
+
+if(error){
+  console.error('Erreur Supabase :', error);
+  alert('Erreur Supabase : ' + error.message + ' (code ' + error.code + ')');
+  return;
+}
   // Récupérer le ticket créé automatiquement par Supabase
   rep.ticket=data.ticket;
 

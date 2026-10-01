@@ -1115,7 +1115,21 @@ async function syncReportsFromSupabase(){
       date:x.date
     }));
 
-    setR(reports);
+    const oldReports = getR();
+const oldTickets = new Set(oldReports.map(x => x.ticket));
+
+const newReports = reports.filter(x => !oldTickets.has(x.ticket));
+
+newReportsCount = newReports.length;
+setR(reports);
+updateNewReportsBadge();
+
+if(newReports.length > 0){
+  console.log(
+    'Nouveaux signalements détectés :',
+    newReports.map(x => x.ticket)
+  );
+}
 
     console.log(
       'Synchronisation Supabase réussie :',

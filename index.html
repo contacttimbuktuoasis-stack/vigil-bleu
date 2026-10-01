@@ -300,7 +300,70 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     </div>
   </div>
 </div>
+<!-- ========= STEP 3 – DÉTAILS + PHOTO ========= -->
+<div id="s-step3" class="s">
+  <div class="hdr">
+    <button class="back" onclick="go('s-step2')">←</button>
+    <div>
+      <div class="hdr-t">Signalement</div>
+      <div class="hdr-s">Étape 3 / 3 — Détails et photo</div>
+    </div>
+  </div>
 
+  <div class="stepbar">
+    <div class="pip done"></div>
+    <div class="pip done"></div>
+    <div class="pip on"></div>
+  </div>
+
+  <div class="step-body">
+    <div class="step-t">Derniers détails</div>
+    <div class="step-sub">
+      Ajoutez une description ou une photo pour aider l'équipe à comprendre le problème.
+    </div>
+
+    <textarea
+      class="notes-ta"
+      id="notes-ta"
+      rows="4"
+      placeholder="Détails supplémentaires (facultatif) — ex : eau coulant depuis 2 jours…"></textarea>
+
+    <div style="margin-top:16px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">
+        📷 Photo du problème
+      </div>
+
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">
+        Facultatif — une photo peut aider l'équipe à évaluer le signalement.
+      </div>
+
+      <input
+        id="photo-input"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style="display:none"
+        onchange="previewPhoto(this)"
+      >
+
+      <button
+        type="button"
+        class="btn-s"
+        onclick="document.getElementById('photo-input').click()"
+        style="width:100%">
+        📷 Ajouter une photo
+      </button>
+
+      <div id="photo-preview" style="display:none;margin-top:12px"></div>
+    </div>
+  </div>
+
+  <div class="foot" style="padding-bottom:max(16px, env(safe-area-inset-bottom, 16px))">
+    <button class="btn-p" onclick="trySubmit()">
+      📤 Envoyer le signalement
+    </button>
+  </div>
+</div>
 <!-- ========= CONFIRMATION ========= -->
 <div id="s-confirm" class="s">
   <div class="confirm-hero">

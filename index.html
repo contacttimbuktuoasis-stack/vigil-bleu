@@ -385,6 +385,17 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
         <span id="adm-user-name">—</span> · <span id="adm-user-role">—</span>
       </div>
     </div>
+
+    <button
+  onclick="openNotifications()"
+  style="position:relative;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:9px 12px;font-size:18px;cursor:pointer">
+  🔔
+  <span
+    id="notif-badge"
+    style="display:none;position:absolute;top:-6px;right:-6px;background:#DC2626;color:#fff;border-radius:999px;min-width:20px;height:20px;padding:2px 5px;font-size:10px;font-weight:800;line-height:16px;text-align:center">
+    0
+  </span>
+</button>
     <button class="logout-btn" onclick="doLogout()">Déconnexion</button>
   </div>
 
@@ -559,7 +570,19 @@ function getR(){ try{return JSON.parse(localStorage.getItem('vb_r')||'[]')}catch
 function setR(r){ try{localStorage.setItem('vb_r',JSON.stringify(r))}catch{} }
 function getM(){ try{return JSON.parse(localStorage.getItem('vb_m')||'[]')}catch{return[]} }
 function setM(m){ try{localStorage.setItem('vb_m',JSON.stringify(m))}catch{} }
+function getAdminSeen(){
+  try{
+    return JSON.parse(localStorage.getItem('vb_admin_seen')||'[]');
+  }catch{
+    return [];
+  }
+}
 
+function setAdminSeen(tickets){
+  try{
+    localStorage.setItem('vb_admin_seen',JSON.stringify(tickets));
+  }catch{}
+}
 // ===== SAMPLE DATA =====
 (function initDemo(){
   if(getR().length) return;
@@ -1084,6 +1107,26 @@ function doLogin(){
     err.style.display='block';
   }
 }
+  function openNotifications(){
+  const reports = getR();
+  const seen = getAdminSeen();
+
+  const newReports = reports.filter(x => !seen.includes(x.ticket));
+
+  if(!newReports.length){
+    alert('🔔 Aucune nouvelle notification.');
+    return;
+  }
+
+  const message = newReports.map(x =>
+    `${x.ticket} — ${x.typeLabel||'Signalement'}`
+  ).join('\n');
+
+  alert(
+    `🔔 ${newReports.length} nouveau(x) signalement(s)\n\n` +
+    message
+  );
+}
 function doLogout(){ currentUser=null; go('s-home'); }
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 // ===== SYNC SUPABASE → ADMIN =====
@@ -1149,7 +1192,7 @@ async function initAdmin(){
   if(tabC) tabC.style.display=currentUser&&currentUser.role==='admin'?'':'none';
 
   await syncReportsFromSupabase();
-
+updateNewReportsBadge();
   renderStats();
   renderAdmStats();
   renderList();
@@ -1686,9 +1729,16 @@ function switchTab(t){
   if(t==='comptes') renderComptes();
 }
 function updateNewReportsBadge(){
-  const badge=document.getElementById('new-reports-badge');
+  const badge=document.getElementById('notif-badge');
 
   if(!badge) return;
+
+  const reports=getR();
+  const seen=getAdminSeen();
+
+  const newReports=reports.filter(x=>!seen.includes(x.ticket));
+
+  newReportsCount=newReports.length;
 
   if(newReportsCount>0){
     badge.textContent=newReportsCount;

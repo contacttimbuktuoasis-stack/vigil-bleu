@@ -915,6 +915,14 @@ function geoFail(err){
 
   showGeoManual(msg);
 }
+  // ===== REPRISE AUTOMATIQUE DU GPS AU RETOUR DANS L'APPLICATION =====
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible' && geoState==='error'){
+    setTimeout(()=>{
+      getGeo();
+    },500);
+  }
+});
 function showGeoManual(message='GPS indisponible. Vous pouvez saisir votre quartier.'){
   F.lat=null; F.lng=null;
   const pill=document.getElementById('geo-pill'); if(!pill) return;
@@ -976,6 +984,15 @@ function trySubmit(){
   const qInput=document.getElementById('quartier-input');
   if(qInput&&qInput.value.trim()) F.quartier=qInput.value.trim();
   if(!F.quartier||F.quartier==='Quartier') F.quartier='Quartier non précisé';
+  if(
+  geoState!=='ok' ||
+  !Number.isFinite(Number(F.lat)) ||
+  !Number.isFinite(Number(F.lng))
+){
+  alert('📍 Votre position GPS n’est pas encore disponible. Veuillez patienter pendant la localisation.');
+  getGeo();
+  return;
+}
   // Ne jamais inventer une position GPS.
   const dup=findDupli();
   if(dup&&!skipDupli){

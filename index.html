@@ -810,32 +810,53 @@ function getGeo(){
         ? Math.round(p.coords.accuracy)
         : null;
 
-      F.lat=lat;
-      F.lng=lng;
-      F.quartier='Position GPS';
+      if(acc!==null && acc<=20){
 
-      geoState='ok';
-      geoError='';
+        F.lat=lat;
+        F.lng=lng;
+        F.quartier='Position GPS';
 
-      setPill(
-        '📍',
-        acc!==null && acc<=50
-          ? 'Position obtenue'
-          : 'Position GPS disponible',
-        acc!==null
-          ? `Précision GPS ~${acc} m`
-          : 'Précision non disponible',
-        true
-      );
+        geoState='ok';
+        geoError='';
 
-      if(reportMap){
-        reportMap.setView([lat,lng],17);
-        reportMap.invalidateSize();
+        setPill(
+          '📍',
+          acc<=10
+            ? 'Position très précise'
+            : 'Position précise',
+          `Meilleure précision GPS ~${acc} m`,
+          true
+        );
+
+        if(reportMap){
+          reportMap.setView([lat,lng],17);
+          reportMap.invalidateSize();
+        }
+
+      }else{
+
+        geoState='error';
+        geoError='accuracy';
+
+        setPill(
+          '⚠️',
+          'Position insuffisamment précise',
+          acc!==null
+            ? `Meilleure précision obtenue : ~${acc} m`
+            : 'Précision GPS indisponible'
+        );
+
+        showGeoManual(
+          acc!==null
+            ? `La précision GPS obtenue est d'environ ${acc} m.`
+            : 'La précision GPS n’est pas disponible.'
+        );
       }
 
     }else{
       geoFail({code:3});
     }
+
   },30000);
 }
 function geoSuccess(p){
@@ -883,8 +904,8 @@ function geoSuccess(p){
     }).addTo(reportMap);
   }
 
-  // Objectif : obtenir une précision de 20 m ou moins
-  if(acc!==null && acc<=20){
+  // ≤ 10 m : excellente précision, on peut arrêter immédiatement
+  if(acc!==null && acc<=10){
 
     F.lat=lat;
     F.lng=lng;
@@ -895,7 +916,7 @@ function geoSuccess(p){
 
     setPill(
       '📍',
-      'Position suffisamment précise',
+      'Position très précise',
       `Précision GPS ~${acc} m`,
       true
     );
@@ -912,7 +933,32 @@ function geoSuccess(p){
     return;
   }
 
-  // La position est utilisable, mais on continue à chercher mieux
+  // 11 à 20 m : position déjà acceptable,
+  // mais on continue à chercher encore mieux.
+  if(acc!==null && acc<=20){
+
+    F.lat=lat;
+    F.lng=lng;
+    F.quartier='Position GPS';
+
+    geoState='ok';
+    geoError='';
+
+    setPill(
+      '📍',
+      'Position précise',
+      `Précision GPS ~${acc} m — recherche d'une meilleure précision…`,
+      true
+    );
+
+    setTimeout(()=>{
+      if(reportMap) reportMap.invalidateSize();
+    },100);
+
+    return;
+  }
+
+  // > 20 m : on continue à chercher
   setPill(
     '🔄',
     'Amélioration de la précision…',
@@ -925,7 +971,6 @@ function geoSuccess(p){
     if(reportMap) reportMap.invalidateSize();
   },100);
 }
-
 function geoFail(err){
   // Si une bonne position a déjà été obtenue,
   // on la conserve plutôt que d'afficher une erreur.

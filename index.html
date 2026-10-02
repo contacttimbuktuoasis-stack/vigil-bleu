@@ -1084,10 +1084,34 @@ function hdist(a,b,c,d){
   const x=Math.sin(dA/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dB/2)**2;
   return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
-function findDupli(){
-  return getR().find(r=>r.status!=='regle'&&r.lat&&r.lng&&hdist(F.lat||0,F.lng||0,r.lat,r.lng)<DUPLI_R);
-}
 
+function findDupli(){
+  const now=Date.now();
+  const sevenDays=7*24*60*60*1000;
+
+  return getR().find(r=>{
+    if(r.status==='regle') return false;
+
+    if(!r.lat||!r.lng) return false;
+
+    if(r.type!==F.type) return false;
+
+    const reportDate=new Date(r.date).getTime();
+
+    if(!Number.isFinite(reportDate)) return false;
+
+    if(now-reportDate>sevenDays) return false;
+
+    const distance=hdist(
+      Number(F.lat)||0,
+      Number(F.lng)||0,
+      Number(r.lat),
+      Number(r.lng)
+    );
+
+    return distance<=30;
+  });
+}
 // ===== SUBMIT =====
 function trySubmit(){
   F.notes=(document.getElementById('notes-ta').value||'').trim();

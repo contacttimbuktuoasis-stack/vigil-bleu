@@ -1328,7 +1328,8 @@ async function syncReportsFromSupabase(){
       lat:x.lat,
       lng:x.lng,
       status:x.status,
-      date:x.date
+      date:x.date,
+      photoUrl:x.photo_url
     }));
 
     const oldReports = getR();

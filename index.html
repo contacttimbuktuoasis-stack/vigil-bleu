@@ -105,6 +105,47 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 /* OVERLAY / MODAL */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.52);display:flex;align-items:flex-end;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
 .ov.show{opacity:1;pointer-events:all}
+.send-loading{
+  position:fixed;
+  inset:0;
+  background:rgba(2,62,138,.72);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:500;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s;
+}
+
+.send-loading.show{
+  opacity:1;
+  pointer-events:all;
+}
+
+.send-loading-box{
+  width:calc(100% - 48px);
+  max-width:360px;
+  background:var(--card);
+  border-radius:22px;
+  padding:28px 22px;
+  text-align:center;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
+}
+
+.send-spinner{
+  width:48px;
+  height:48px;
+  border:5px solid var(--border-l);
+  border-top-color:var(--p);
+  border-radius:50%;
+  margin:0 auto 16px;
+  animation:sendSpin .8s linear infinite;
+}
+
+@keyframes sendSpin{
+  to{transform:rotate(360deg)}
+}
 .modal{background:var(--card);border-radius:24px 24px 0 0;padding:28px 22px 44px;width:100%;max-width:440px;transform:translateY(40px);transition:transform .25s}
 .ov.show .modal{transform:none}
 .modal-ico{font-size:44px;text-align:center;margin-bottom:10px}
@@ -363,6 +404,23 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <button class="btn-p" onclick="trySubmit()">
       📤 Envoyer le signalement
     </button>
+  </div>
+</div>
+<!-- ========= ENVOI EN COURS ========= -->
+<div id="send-loading" class="send-loading">
+  <div class="send-loading-box">
+
+    <div class="send-spinner"></div>
+
+    <div style="font-size:18px;font-weight:800;margin-bottom:6px">
+      📤 Envoi en cours…
+    </div>
+
+    <div style="font-size:13px;color:var(--muted);line-height:1.5">
+      Veuillez patienter quelques secondes.<br>
+      Votre signalement est en cours d'enregistrement.
+    </div>
+
   </div>
 </div>
 <!-- ========= CONFIRMATION ========= -->

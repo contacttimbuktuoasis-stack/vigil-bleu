@@ -1407,8 +1407,7 @@ function doLogin(){
   } else {
     err.style.display='block';
   }
-}
-  function openNotifications(){
+function openNotifications(){
   const reports = getR();
   const seen = getAdminSeen();
 
@@ -1427,6 +1426,19 @@ function doLogin(){
     `🔔 ${newReports.length} nouveau(x) signalement(s)\n\n` +
     message
   );
+
+  // Marquer les notifications affichées comme vues
+  const updatedSeen = [
+    ...new Set([
+      ...seen,
+      ...newReports.map(x => x.ticket)
+    ])
+  ];
+
+  setAdminSeen(updatedSeen);
+
+  // Actualiser le compteur de la cloche
+  updateNewReportsBadge();
 }
 function doLogout(){ currentUser=null; go('s-home'); }
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});

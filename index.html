@@ -773,7 +773,7 @@ const TYPES = [
 ];
 
 // ===== STORAGE =====
-function getR(){ try{return JSON.parse(localStorage.getItem('vb_r')||'[]')}catch{return[]} }
+function getR(){ try{const r=JSON.parse(localStorage.getItem('vb_r')||'[]');return Array.isArray(r)?r:[]}catch{return[]} }
 function setR(r){ try{localStorage.setItem('vb_r',JSON.stringify(r))}catch{} }
 function getM(){ try{return JSON.parse(localStorage.getItem('vb_m')||'[]')}catch{return[]} }
 function setM(m){ try{localStorage.setItem('vb_m',JSON.stringify(m))}catch{} }

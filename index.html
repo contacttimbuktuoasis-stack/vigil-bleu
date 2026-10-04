@@ -1294,7 +1294,15 @@ function removePhoto(){
     preview.style.display='none';
   }
 }
-  async function createReport(){
+  let reportSending=false;
+
+async function createReport(){
+
+  // Empêcher tout double envoi
+  if(reportSending) return;
+
+  reportSending=true;
+
   const rep={
     id:'u'+Date.now(),
     type:F.type,

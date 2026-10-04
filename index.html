@@ -2090,17 +2090,26 @@ function updateNewReportsBadge(){
 }
 // ===== TABS =====
 function switchTab(t){
-  ['map','list','stats','comptes'].forEach(x=>{
+  ['map','list','archives','stats','comptes'].forEach(x=>{
     const tab=document.getElementById('tab-'+x);
     const pane=document.getElementById('pane-'+x);
+
     if(tab) tab.classList.toggle('on',x===t);
     if(pane) pane.classList.toggle('on',x===t);
   });
-  if(t==='map') setTimeout(()=>adMap&&adMap.invalidateSize(),120);
-  if(t==='stats') renderAdmStats();
-  if(t==='comptes') renderComptes();
-}
 
+  if(t==='map'){
+    setTimeout(()=>adMap&&adMap.invalidateSize(),120);
+  }
+
+  if(t==='stats'){
+    renderAdmStats();
+  }
+
+  if(t==='comptes'){
+    renderComptes();
+  }
+}
 // ===== INIT =====
 renderTypes();
 </script>

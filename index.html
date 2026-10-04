@@ -1578,7 +1578,9 @@ function finishReport(){
 
 // ===== MES SIGNALEMENTS =====
 function showMine(){
-  const mine=getM(), all=getR();
+  const mineRaw=getM();
+const mine=Array.isArray(mineRaw)?mineRaw:[];
+const all=getR();
   const el=document.getElementById('mine-list');
   const myR=all.filter(r=>mine.includes(r.ticket)).sort((a,b)=>new Date(b.date)-new Date(a.date));
   if(!myR.length){

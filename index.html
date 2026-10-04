@@ -1441,33 +1441,24 @@ function openNotifications(){
   const reports=getR();
   const seen=getAdminSeen();
 
-  const newReports=reports.filter(
-    x=>!seen.includes(x.ticket)
+  const newReports=reports.filter(x=>
+    x.status!=='regle' &&
+    !seen.includes(x.ticket)
   );
 
-  if(!newReports.length){
-    alert('🔔 Aucune nouvelle notification.');
-    return;
+  if(newReports.length){
+    const updatedSeen=[
+      ...new Set([
+        ...seen,
+        ...newReports.map(x=>x.ticket)
+      ])
+    ];
+
+    setAdminSeen(updatedSeen);
   }
 
-  const message=newReports.map(x=>
-    `${x.ticket} — ${x.typeLabel||'Signalement'}`
-  ).join('\n');
-
-  alert(
-    `🔔 ${newReports.length} nouveau(x) signalement(s)\n\n`+
-    message
-  );
-
-  const updatedSeen=[
-    ...new Set([
-      ...seen,
-      ...newReports.map(x=>x.ticket)
-    ])
-  ];
-
-  setAdminSeen(updatedSeen);
-
+  switchTab('list');
+  renderList();
   updateNewReportsBadge();
 }
   

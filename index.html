@@ -907,7 +907,25 @@ function getGeo(){
   if(fill) fill.style.width='10%';
   if(percent) percent.textContent='10 %';
   if(text) text.textContent='Recherche de votre position, veuillez patienter…';
+let geoProgressValue=10;
 
+const geoProgressTimer=setInterval(()=>{
+  if(geoState!=='loading'){
+    clearInterval(geoProgressTimer);
+    return;
+  }
+
+  if(geoProgressValue<90){
+    geoProgressValue+=5;
+
+    if(fill) fill.style.width=geoProgressValue+'%';
+    if(percent) percent.textContent=geoProgressValue+' %';
+
+    if(geoProgressValue>=70 && text){
+      text.textContent='Affinement de votre position, veuillez patienter…';
+    }
+  }
+},1500);
   bestGeoAccuracy=Infinity;
   bestGeoPosition=null;
   geoStartTime=Date.now();

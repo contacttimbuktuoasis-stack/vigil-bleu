@@ -2155,10 +2155,14 @@ function updateNewReportsBadge(){
   if(!badge) return;
 
   const reports=getR();
+  const seen=getAdminSeen();
 
-  const pendingReports=reports.filter(x=>x.status!=='regle');
+  const newReports=reports.filter(x=>
+    x.status!=='regle' &&
+    !seen.includes(x.ticket)
+  );
 
-  newReportsCount=pendingReports.length;
+  newReportsCount=newReports.length;
 
   if(newReportsCount>0){
     badge.textContent=newReportsCount;

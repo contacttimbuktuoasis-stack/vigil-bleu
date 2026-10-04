@@ -1448,7 +1448,11 @@ if(error){
   document.getElementById('c-type').textContent=F.typeIco+' '+F.typeLabel;
   document.getElementById('c-qrt').textContent=F.quartier;
   document.getElementById('c-date').textContent=fmtDt(rep.date);
-  go('s-confirm');
+
+// Masquer l'écran d'envoi une fois l'enregistrement terminé
+document.getElementById('send-loading').classList.remove('show');
+
+go('s-confirm');
 }
 function finishReport(){
   // Dans cette version, le citoyen ne quitte jamais l'application pour contacter le numéro professionnel.

@@ -2179,7 +2179,9 @@ function switchTab(t){
   if(t==='map'){
     setTimeout(()=>adMap&&adMap.invalidateSize(),120);
   }
-
+if(t==='archives'){
+  renderArchives();
+}
   if(t==='stats'){
     renderAdmStats();
   }

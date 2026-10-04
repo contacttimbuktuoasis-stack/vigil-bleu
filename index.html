@@ -897,6 +897,17 @@ function getGeo(){
   geoState='loading';
   geoError='';
 
+  // Afficher la progression GPS
+  const progress=document.getElementById('geo-progress');
+  const fill=document.getElementById('geo-progress-fill');
+  const percent=document.getElementById('geo-progress-percent');
+  const text=document.getElementById('geo-progress-text');
+
+  if(progress) progress.classList.add('show');
+  if(fill) fill.style.width='10%';
+  if(percent) percent.textContent='10 %';
+  if(text) text.textContent='Recherche de votre position, veuillez patienter…';
+
   bestGeoAccuracy=Infinity;
   bestGeoPosition=null;
   geoStartTime=Date.now();

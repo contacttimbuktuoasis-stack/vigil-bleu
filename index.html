@@ -1090,7 +1090,17 @@ function geoSuccess(p){
       `Précision GPS ~${acc} m`,
       true
     );
+const progress=document.getElementById('geo-progress');
+const fill=document.getElementById('geo-progress-fill');
+const percent=document.getElementById('geo-progress-percent');
+const text=document.getElementById('geo-progress-text');
+const btn=document.getElementById('btn2');
 
+if(fill) fill.style.width='100%';
+if(percent) percent.textContent='100 %';
+if(text) text.textContent='Position GPS confirmée. Vous pouvez continuer.';
+if(progress) progress.classList.remove('show');
+if(btn) btn.disabled=false;
     if(geoWatchId!==null){
       navigator.geolocation.clearWatch(geoWatchId);
       geoWatchId=null;
@@ -1117,9 +1127,21 @@ function geoSuccess(p){
     setPill(
       '📍',
       'Position précise',
-      `Précision GPS ~${acc} m — recherche d'une meilleure précision…`,
+      `Précision GPS ~${acc} m`,
       true
     );
+
+    const progress=document.getElementById('geo-progress');
+    const fill=document.getElementById('geo-progress-fill');
+    const percent=document.getElementById('geo-progress-percent');
+    const text=document.getElementById('geo-progress-text');
+    const btn=document.getElementById('btn2');
+
+    if(fill) fill.style.width='100%';
+    if(percent) percent.textContent='100 %';
+    if(text) text.textContent='Position GPS confirmée. Vous pouvez continuer.';
+    if(progress) progress.classList.remove('show');
+    if(btn) btn.disabled=false;
 
     setTimeout(()=>{
       if(reportMap) reportMap.invalidateSize();

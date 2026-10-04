@@ -1635,7 +1635,10 @@ function renderArchives(){
 }
 
 function renderList(){
-  const r=getR().filter(x=>adFilter==='all'||x.status===adFilter).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const r=getR()
+  .filter(x=>x.status!=='regle')
+  .filter(x=>adFilter==='all'||x.status===adFilter)
+  .sort((a,b)=>new Date(b.date)-new Date(a.date));
   const el=document.getElementById('adm-list');
 
   if(!r.length){

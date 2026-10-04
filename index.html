@@ -1395,38 +1395,62 @@ function doLogin(){
   const pass=document.getElementById('l-pass').value;
   const err=document.getElementById('l-err');
   const acc=getAcc();
-  const user=acc.find(a=>a.email.toLowerCase()===email&&a.password===pass&&a.active);
+
+  const user=acc.find(
+    a=>a.email.toLowerCase()===email&&a.password===pass&&a.active
+  );
+
   if(user){
     currentUser=user;
     err.style.display='none';
+
     // Mettre à jour l'en-tête avec nom + rôle
     document.getElementById('adm-user-name').textContent=user.nom;
-    document.getElementById('adm-user-role').textContent=user.role==='admin'?'🔑 Admin principal':'👤 Superviseur';
+    document.getElementById('adm-user-role').textContent=
+      user.role==='admin'
+        ? '🔑 Admin principal'
+        : '👤 Superviseur';
+
     go('s-admin');
     initAdmin();
-    } else {
+
+  }else{
     err.style.display='block';
   }
 }
-function openNotifications(){
-  const reports = getR();
-  const seen = getAdminSeen();
 
-  const newReports = reports.filter(x => !seen.includes(x.ticket));
+function openNotifications(){
+  const reports=getR();
+  const seen=getAdminSeen();
+
+  const newReports=reports.filter(
+    x=>!seen.includes(x.ticket)
+  );
 
   if(!newReports.length){
     alert('🔔 Aucune nouvelle notification.');
     return;
   }
 
-  const message = newReports.map(x =>
+  const message=newReports.map(x=>
     `${x.ticket} — ${x.typeLabel||'Signalement'}`
   ).join('\n');
 
   alert(
-    `🔔 ${newReports.length} nouveau(x) signalement(s)\n\n` +
+    `🔔 ${newReports.length} nouveau(x) signalement(s)\n\n`+
     message
   );
+
+  const updatedSeen=[
+    ...new Set([
+      ...seen,
+      ...newReports.map(x=>x.ticket)
+    ])
+  ];
+
+  setAdminSeen(updatedSeen);
+
+  updateNewReportsBadge();
 }
   
 function doLogout(){ currentUser=null; go('s-home'); }

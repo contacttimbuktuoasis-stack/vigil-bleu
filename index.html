@@ -1404,10 +1404,10 @@ function doLogin(){
     document.getElementById('adm-user-role').textContent=user.role==='admin'?'🔑 Admin principal':'👤 Superviseur';
     go('s-admin');
     initAdmin();
-  } else {
+    } else {
     err.style.display='block';
   }
-  
+}
 function openNotifications(){
   const reports = getR();
   const seen = getAdminSeen();

@@ -2293,7 +2293,12 @@ async function renderComptes(){
   el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Chargement...</div>';
 
   try{
-    const { data, error } = await supabaseClient.auth.admin.listUsers();
+    const { data, error } = await supabaseClient.functions.invoke(
+      'list-supervisors',
+      {
+        body: {}
+      }
+    );
 
     if(error){
       console.error('Erreur chargement des superviseurs :', error);
@@ -2301,9 +2306,13 @@ async function renderComptes(){
       return;
     }
 
-    const users = (data?.users || []).filter(
-      u => u.user_metadata?.role === 'superviseur'
-    );
+    if(!data || !data.success){
+      console.error('Erreur Edge Function :', data?.error);
+      el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Impossible de charger les comptes.</div>';
+      return;
+    }
+
+    const users = data.users || [];
 
     if(!users.length){
       el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Aucun superviseur créé</div>';
@@ -2314,7 +2323,7 @@ async function renderComptes(){
       <div style="background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <div>
-            <div style="font-weight:700;font-size:15px">${u.user_metadata?.nom || 'Superviseur'}</div>
+            <div style="font-weight:700;font-size:15px">${u.nom || 'Superviseur'}</div>
             <div style="font-size:12px;color:var(--muted)">${u.email || ''}</div>
           </div>
 

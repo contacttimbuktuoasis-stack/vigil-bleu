@@ -732,12 +732,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 const WA_NUM = '22389161329'; // Numéro vert Vigil Bleu
 const DUPLI_R = 100; // mètres
 
-// ===== COMPTES (données par défaut) =====
-const DEMO_ACCOUNTS = [
-  {id:'a1',role:'admin',nom:'Admin Principal',email:'admin@vigilbleu.com',password:'Admin1234',active:true,createdAt:new Date().toISOString()},
-  {id:'s1',role:'superviseur',nom:'Sarah Diop',email:'sarah.diop@eau.sn',password:'1234',active:true,createdAt:new Date().toISOString()},
-  {id:'s2',role:'superviseur',nom:'Moussa Ba',email:'moussa.ba@eau.sn',password:'1234',active:false,createdAt:new Date().toISOString()},
-];
 function getAcc(){ try{return JSON.parse(localStorage.getItem('vb_acc')||'null')||DEMO_ACCOUNTS}catch{return DEMO_ACCOUNTS} }
 function setAcc(a){ try{localStorage.setItem('vb_acc',JSON.stringify(a))}catch{} }
 

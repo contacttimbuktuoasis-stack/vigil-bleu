@@ -1665,8 +1665,18 @@ function openNotifications(){
   updateNewReportsBadge();
 }
   
-function doLogout(){ currentUser=null; go('s-home'); }
-document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+async function doLogout(){
+  const { error } = await supabaseClient.auth.signOut();
+
+  if(error){
+    console.error('Erreur déconnexion Supabase Auth :', error);
+    alert('Impossible de se déconnecter.');
+    return;
+  }
+
+  currentUser=null;
+  go('s-home');
+}
 // ===== SYNC SUPABASE → ADMIN =====
 async function syncReportsFromSupabase(){
   try{

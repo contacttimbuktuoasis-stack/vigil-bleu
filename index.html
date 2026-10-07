@@ -1600,35 +1600,46 @@ const all=getR();
 }
 
 // ===== ADMIN LOGIN =====
-function doLogin(){
+async function doLogin(){
   const email=document.getElementById('l-user').value.trim().toLowerCase();
   const pass=document.getElementById('l-pass').value;
   const err=document.getElementById('l-err');
-  const acc=getAcc();
 
-  const user=acc.find(
-    a=>a.email.toLowerCase()===email&&a.password===pass&&a.active
-  );
+  err.style.display='none';
 
-  if(user){
-    currentUser=user;
-    err.style.display='none';
+  if(!email||!pass){
+    err.textContent='Veuillez saisir votre e-mail et votre mot de passe.';
+    err.style.display='block';
+    return;
+  }
 
-    // Mettre à jour l'en-tête avec nom + rôle
-    document.getElementById('adm-user-name').textContent=user.nom;
-    document.getElementById('adm-user-role').textContent=
-      user.role==='admin'
-        ? '🔑 Admin principal'
-        : '👤 Superviseur';
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email:email,
+    password:pass
+  });
+
+  if(error){
+    console.error('Erreur connexion Supabase Auth :',error);
+    err.textContent='E-mail ou mot de passe incorrect.';
+    err.style.display='block';
+    return;
+  }
+
+  if(data.user){
+    currentUser={
+      id:data.user.id,
+      role:'admin',
+      nom:data.user.email||email,
+      email:data.user.email||email
+    };
+
+    document.getElementById('adm-user-name').textContent=currentUser.nom;
+    document.getElementById('adm-user-role').textContent='🔑 Admin principal';
 
     go('s-admin');
-    initAdmin();
-
-  }else{
-    err.style.display='block';
+    await initAdmin();
   }
 }
-
 function openNotifications(){
   const reports=getR();
   const seen=getAdminSeen();

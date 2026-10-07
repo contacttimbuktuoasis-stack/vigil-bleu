@@ -2287,26 +2287,52 @@ function refreshMarkers(){
 }
 
 // ===== GESTION COMPTES =====
-function renderComptes(){
-  const acc=getAcc().filter(a=>a.role==='superviseur');
-  const el=document.getElementById('comptes-list');
-  if(!acc.length){
-    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Aucun superviseur créé</div>'; return;
-  }
-  el.innerHTML=acc.map(a=>`
-    <div style="background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div>
-          <div style="font-weight:700;font-size:15px">${a.nom}</div>
-          <div style="font-size:12px;color:var(--muted)">${a.email}</div>
+async function renderComptes(){
+  const el = document.getElementById('comptes-list');
+
+  el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Chargement...</div>';
+
+  try{
+    const { data, error } = await supabaseClient.auth.admin.listUsers();
+
+    if(error){
+      console.error('Erreur chargement des superviseurs :', error);
+      el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Impossible de charger les comptes.</div>';
+      return;
+    }
+
+    const users = (data?.users || []).filter(
+      u => u.user_metadata?.role === 'superviseur'
+    );
+
+    if(!users.length){
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Aucun superviseur créé</div>';
+      return;
+    }
+
+    el.innerHTML = users.map(u => `
+      <div style="background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div>
+            <div style="font-weight:700;font-size:15px">${u.user_metadata?.nom || 'Superviseur'}</div>
+            <div style="font-size:12px;color:var(--muted)">${u.email || ''}</div>
+          </div>
+
+          <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#D1FAE5;color:#065F46">
+            ✅ Actif
+          </span>
         </div>
-        <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;${a.active?'background:#D1FAE5;color:#065F46':'background:#FEE2E2;color:#991B1B'}">${a.active?'✅ Actif':'🔴 Inactif'}</span>
+
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
+          Créé le ${fmtDate(u.created_at)}
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Créé le ${fmtDate(a.createdAt)}</div>
-      <button onclick="toggleCompte('${a.id}')" class="btn-sm" style="background:${a.active?'#FEE2E2':'#D1FAE5'};color:${a.active?'#991B1B':'#065F46'};width:100%;padding:9px">
-        ${a.active?'🔴 Désactiver ce compte':'✅ Activer ce compte'}
-      </button>
-    </div>`).join('');
+    `).join('');
+
+  }catch(error){
+    console.error('Erreur chargement des superviseurs :', error);
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Une erreur est survenue.</div>';
+  }
 }
 
 function openNewCompte(){

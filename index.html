@@ -2317,18 +2317,62 @@ function openNewCompte(){
   document.getElementById('ov-compte').classList.add('show');
 }
 
-function createCompte(){
-  const nom=document.getElementById('nc-nom').value.trim();
-  const email=document.getElementById('nc-email').value.trim().toLowerCase();
-  const pass=document.getElementById('nc-pass').value;
-  const errEl=document.getElementById('nc-err');
-  if(!nom||!email||!pass){ errEl.textContent='Veuillez remplir tous les champs.'; errEl.style.display='block'; return; }
-  const acc=getAcc();
-  if(acc.find(a=>a.email.toLowerCase()===email)){ errEl.textContent='Cet e-mail est déjà utilisé.'; errEl.style.display='block'; return; }
-  acc.push({id:'u'+Date.now(),role:'superviseur',nom,email,password:pass,active:true,createdAt:new Date().toISOString()});
-  setAcc(acc);
-  document.getElementById('ov-compte').classList.remove('show');
-  renderComptes();
+async function createCompte(){
+  const nom = document.getElementById('nc-nom').value.trim();
+  const email = document.getElementById('nc-email').value.trim().toLowerCase();
+  const pass = document.getElementById('nc-pass').value;
+  const errEl = document.getElementById('nc-err');
+
+  errEl.style.display = 'none';
+
+  if(!nom || !email || !pass){
+    errEl.textContent = 'Veuillez remplir tous les champs.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if(pass.length < 6){
+    errEl.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  try{
+    const { data, error } = await supabaseClient.functions.invoke(
+      'create-supervisor',
+      {
+        body:{
+          nom: nom,
+          email: email,
+          password: pass
+        }
+      }
+    );
+
+    if(error){
+      console.error('Erreur création superviseur :', error);
+      errEl.textContent = 'Impossible de créer ce compte.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    if(!data || !data.success){
+      errEl.textContent = data?.error || 'Impossible de créer ce compte.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('ov-compte').classList.remove('show');
+
+    alert('✅ Compte superviseur créé avec succès.');
+
+    renderComptes();
+
+  }catch(error){
+    console.error('Erreur création superviseur :', error);
+    errEl.textContent = 'Une erreur est survenue.';
+    errEl.style.display = 'block';
+  }
 }
 
 function toggleCompte(id){

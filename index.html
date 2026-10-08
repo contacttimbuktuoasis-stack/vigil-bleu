@@ -2358,7 +2358,21 @@ async function renderComptes(){
     el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Une erreur est survenue.</div>';
   }
 }
+async function deleteCompte(id, nom){
+  const confirmation = confirm(
+    `Voulez-vous vraiment supprimer le compte superviseur "${nom}" ?\n\nCette action est définitive.`
+  );
 
+  if(!confirmation){
+    return;
+  }
+
+  try{
+    const { data, error } = await supabaseClient.functions.invoke(
+      'delete-supervisor',
+      {
+        body:{
+          userId
 function openNewCompte(){
   document.getElementById('nc-nom').value='';
   document.getElementById('nc-email').value='';

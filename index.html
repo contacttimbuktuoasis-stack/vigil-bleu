@@ -2372,7 +2372,32 @@ async function deleteCompte(id, nom){
       'delete-supervisor',
       {
         body:{
-          userId
+          userId:id
+        }
+      }
+    );
+
+    if(error){
+      console.error('Erreur suppression superviseur :', error);
+      alert('Impossible de supprimer ce compte.');
+      return;
+    }
+
+    if(!data || !data.success){
+      console.error('Erreur Edge Function :', data?.error);
+      alert(data?.error || 'Impossible de supprimer ce compte.');
+      return;
+    }
+
+    alert('✅ Compte superviseur supprimé.');
+
+    await renderComptes();
+
+  }catch(error){
+    console.error('Erreur suppression superviseur :', error);
+    alert('Une erreur est survenue.');
+  }
+}
 function openNewCompte(){
   document.getElementById('nc-nom').value='';
   document.getElementById('nc-email').value='';

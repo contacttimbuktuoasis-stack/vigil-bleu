@@ -1610,15 +1610,23 @@ async function doLogin(){
   }
 
   if(data.user){
+    const role=data.user.user_metadata?.role || 'admin';
+    const nom=data.user.user_metadata?.nom || data.user.email || email;
+
     currentUser={
       id:data.user.id,
-      role:'admin',
-      nom:data.user.email||email,
+      role:role,
+      nom:nom,
       email:data.user.email||email
     };
 
     document.getElementById('adm-user-name').textContent=currentUser.nom;
-    document.getElementById('adm-user-role').textContent='🔑 Admin principal';
+
+    if(role==='superviseur'){
+      document.getElementById('adm-user-role').textContent='👤 Superviseur';
+    }else{
+      document.getElementById('adm-user-role').textContent='🔑 Admin principal';
+    }
 
     go('s-admin');
     await initAdmin();

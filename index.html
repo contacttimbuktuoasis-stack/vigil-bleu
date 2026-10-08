@@ -2343,6 +2343,13 @@ async function renderComptes(){
         <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
           Créé le ${fmtDate(u.created_at)}
         </div>
+
+        <button
+          onclick="deleteCompte('${u.id}','${String(u.nom || 'Superviseur').replace(/'/g,"\\'")}')"
+          class="btn-sm"
+          style="background:#FEE2E2;color:#991B1B;width:100%;padding:9px">
+          🗑️ Supprimer ce compte
+        </button>
       </div>
     `).join('');
 

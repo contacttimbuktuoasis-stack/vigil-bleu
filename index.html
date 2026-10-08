@@ -1510,20 +1510,19 @@ if(F.photo){
 // Enregistrer le signalement dans Supabase
 // Le numéro de ticket est créé automatiquement par Supabase
 const { data, error } = await supabaseClient
-  .from('reports')
-  .insert([{
-    id:rep.id,
-    type:rep.type,
-    type_label:rep.typeLabel,
-    type_ico:rep.typeIco,
-    quartier:rep.quartier,
-    notes:rep.notes,
-    lat:rep.lat,
-    lng:rep.lng,
-    status:rep.status,
-    date:rep.date,
-    photo_url:photoUrl
-  }])
+  .rpc('creer_signalement', {
+    p_id:rep.id,
+    p_type:rep.type,
+    p_type_label:rep.typeLabel,
+    p_type_ico:rep.typeIco,
+    p_quartier:rep.quartier,
+    p_notes:rep.notes,
+    p_lat:rep.lat,
+    p_lng:rep.lng,
+    p_status:rep.status,
+    p_date:rep.date,
+    p_photo_url:photoUrl
+  });
   .select('ticket')
   .single();
 

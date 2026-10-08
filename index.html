@@ -1523,9 +1523,6 @@ const { data, error } = await supabaseClient
     p_date:rep.date,
     p_photo_url:photoUrl
   });
-  .select('ticket')
-  .single();
-
 if(error){
   console.error('Erreur Supabase :', error);
   alert('Erreur Supabase : ' + error.message + ' (code ' + error.code + ')');

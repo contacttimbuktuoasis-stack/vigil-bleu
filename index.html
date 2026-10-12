@@ -1458,7 +1458,11 @@ function removePhoto(){
 
 async function createReport(){
 const { data: sessionData } = await supabaseClient.auth.getSession();
-console.log('SESSION TEST :', sessionData.session);
+alert('SESSION TEST : ' + (
+  sessionData.session
+    ? 'SESSION ACTIVE — rôle : ' + sessionData.session.user.role
+    : 'AUCUNE SESSION ACTIVE'
+));
   // Empêcher tout double envoi
   if(reportSending) return;
 

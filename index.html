@@ -2074,7 +2074,17 @@ const tauxResolution=Math.round((totalResolus/r.length)*100);
   r.forEach(x=>{ byT[x.typeLabel]=(byT[x.typeLabel]||0)+1; });
   const tSorted=Object.entries(byT).sort((a,b)=>b[1]-a[1]);
 
-  el.innerHTML=`
+  el.innerHTML=`    <div style="background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">
+        📈 Taux de résolution
+      </div>
+      <div style="font-size:32px;font-weight:800;color:var(--success)">
+        ${tauxResolution}%
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">
+        ${totalResolus} signalement(s) résolu(s) sur ${r.length}
+      </div>
+    </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div style="font-weight:800;font-size:16px">📊 Rapport d'activité</div>
       <button onclick="genRapport()" style="background:var(--p);color:#fff;border:none;border-radius:12px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer">📄 Publier le rapport</button>

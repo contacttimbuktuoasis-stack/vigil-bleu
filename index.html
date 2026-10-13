@@ -1744,11 +1744,60 @@ updateNewReportsBadge();
 
 function renderStats(){
   const r=getR();
-  const tot=r.length,recu=r.filter(x=>x.status==='recu').length,cours=r.filter(x=>x.status==='cours').length,regle=r.filter(x=>x.status==='regle').length;
+
+  const tot=r.length;
+  const recu=r.filter(x=>x.status==='recu').length;
+  const cours=r.filter(x=>x.status==='cours').length;
+  const regle=r.filter(x=>x.status==='regle').length;
+
   document.getElementById('adm-stats').innerHTML=`
-    <div class="stat"><div class="stat-n">${tot}</div><div class="stat-l">Total</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--warn)">${recu+cours}</div><div class="stat-l">En attente</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--success)">${regle}</div><div class="stat-l">Résolus</div></div>`;
+    <div class="stat" onclick="ouvrirStats('total')"
+      style="cursor:pointer">
+      <div class="stat-n">${tot}</div>
+      <div class="stat-l">Total</div>
+      <div style="font-size:11px;margin-top:5px;color:var(--muted)">👆 Voir la liste</div>
+    </div>
+
+    <div class="stat" onclick="ouvrirStats('attente')"
+      style="cursor:pointer">
+      <div class="stat-n" style="color:var(--warn)">${recu+cours}</div>
+      <div class="stat-l">En attente</div>
+      <div style="font-size:11px;margin-top:5px;color:var(--muted)">👆 Voir la liste</div>
+    </div>
+
+    <div class="stat" onclick="ouvrirStats('resolus')"
+      style="cursor:pointer">
+      <div class="stat-n" style="color:var(--success)">${regle}</div>
+      <div class="stat-l">Résolus</div>
+      <div style="font-size:11px;margin-top:5px;color:var(--muted)">👆 Voir les archives</div>
+    </div>`;
+}
+  function ouvrirStats(type){
+  if(type==='resolus'){
+    switchTab('archives');
+    return;
+  }
+
+  adFilter=type==='attente'?'attente':'all';
+
+  switchTab('list');
+
+  document.querySelectorAll('.fchip').forEach(c=>{
+    c.classList.remove('on');
+  });
+
+  const filtres=document.querySelectorAll('#pane-list .fchip');
+
+  if(type==='total'){
+    if(filtres[0]) filtres[0].classList.add('on');
+  }else{
+    filtres.forEach(c=>{
+      if(c.textContent.includes('Reçus')) c.classList.add('on');
+      if(c.textContent.includes('En cours')) c.classList.add('on');
+    });
+  }
+
+  renderList();
 }
 function renderArchives(){
   const r=getR()
@@ -1833,7 +1882,7 @@ function renderArchives(){
 function renderList(){
   const r=getR()
   .filter(x=>x.status!=='regle')
-  .filter(x=>adFilter==='all'||x.status===adFilter)
+  .filter(x=>adFilter==='all'||(adFilter==='attente'?(x.status==='recu'||x.status==='cours'):x.status===adFilter))
   .sort((a,b)=>new Date(b.date)-new Date(a.date));
   const el=document.getElementById('adm-list');
 

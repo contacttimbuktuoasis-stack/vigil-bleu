@@ -2067,6 +2067,8 @@ function renderAdmStats(){
   r.forEach(x=>{ if(!byQ[x.quartier]) byQ[x.quartier]={total:0,recu:0,cours:0,regle:0}; byQ[x.quartier].total++; byQ[x.quartier][x.status]++; });
   const qSorted=Object.entries(byQ).sort((a,b)=>b[1].total-a[1].total);
   const resolved=r.filter(x=>x.status==='regle'&&x.dateResolved);
+  const totalResolus=r.filter(x=>x.status==='regle').length;
+const tauxResolution=Math.round((totalResolus/r.length)*100);
   const avgH=resolved.length?Math.round(resolved.reduce((s,x)=>s+(new Date(x.dateResolved)-new Date(x.date))/36e5,0)/resolved.length):null;
   const byT={};
   r.forEach(x=>{ byT[x.typeLabel]=(byT[x.typeLabel]||0)+1; });

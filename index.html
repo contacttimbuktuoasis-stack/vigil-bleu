@@ -1755,21 +1755,21 @@ function renderStats(){
       style="cursor:pointer">
       <div class="stat-n">${tot}</div>
       <div class="stat-l">Total</div>
-      <div style="font-size:11px;margin-top:5px;color:var(--muted)">👆 Voir la liste</div>
+      <div style="font-size:11px;margin-top:5px;color:var(--muted)">☰ Voir les signalements</div>
     </div>
 
     <div class="stat" onclick="ouvrirStats('attente')"
       style="cursor:pointer">
       <div class="stat-n" style="color:var(--warn)">${recu+cours}</div>
       <div class="stat-l">En attente</div>
-      <div style="font-size:11px;margin-top:5px;color:var(--muted)">👆 Voir la liste</div>
+      <div style="font-size:11px;margin-top:5px;color:var(--muted)">☰ Voir les signalements</div>
     </div>
 
     <div class="stat" onclick="ouvrirStats('resolus')"
       style="cursor:pointer">
       <div class="stat-n" style="color:var(--success)">${regle}</div>
       <div class="stat-l">Résolus</div>
-      <div style="font-size:11px;margin-top:5px;color:var(--muted)">👆 Voir les archives</div>
+      <div style="font-size:11px;margin-top:5px;color:var(--muted)">▤ Voir les archives</div>
     </div>`;
 }
   function ouvrirStats(type){

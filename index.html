@@ -1031,10 +1031,26 @@ const geoProgressTimer=setInterval(()=>{
           true
         );
 
-        if(reportMap){
+               if(reportMap){
           reportMap.setView([lat,lng],17);
           reportMap.invalidateSize();
         }
+
+        // Terminer la recherche GPS
+        const progress=document.getElementById('geo-progress');
+        const fill=document.getElementById('geo-progress-fill');
+        const percent=document.getElementById('geo-progress-percent');
+        const text=document.getElementById('geo-progress-text');
+        const btn=document.getElementById('btn2');
+        const geoBadge=document.getElementById('geo-success-badge');
+
+        if(fill) fill.style.width='100%';
+        if(percent) percent.textContent='100 %';
+        if(text) text.textContent='Position GPS confirmée. Vous pouvez continuer.';
+        if(progress) progress.classList.remove('show');
+        if(geoBadge) geoBadge.style.display='flex';
+        if(btn) btn.disabled=false; 
+        
 
       }else{
 

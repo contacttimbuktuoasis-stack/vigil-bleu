@@ -1238,7 +1238,11 @@ if(btn) btn.disabled=false;
 function geoFail(err){
   // Si une bonne position a déjà été obtenue,
   // on la conserve plutôt que d'afficher une erreur.
-  if(bestGeoPosition){
+  if(
+  bestGeoPosition &&
+  Number.isFinite(bestGeoPosition.coords.accuracy) &&
+  bestGeoPosition.coords.accuracy <= 20
+){
     const p=bestGeoPosition;
     const lat=p.coords.latitude;
     const lng=p.coords.longitude;

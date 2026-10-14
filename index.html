@@ -152,23 +152,25 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  width:180px;
-  height:180px;
+  width:220px;
+  height:220px;
   box-sizing:border-box;
   margin:0;
-  padding:18px;
-  background:var(--card);
-  border:3px solid var(--p);
+  padding:22px;
+  background:rgba(255,255,255,0.97);
+  border:8px solid rgba(0,126,190,0.10);
+  border-top-color:#087db5;
+  border-right-color:#087db5;
   border-radius:50%;
-  box-shadow:0 8px 24px rgba(0,0,0,0.18);
+  box-shadow:
+    0 12px 35px rgba(0,65,110,0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
   z-index:1000;
-  display:none;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
 }
-
 .geo-progress.show{
   display:block;
 }

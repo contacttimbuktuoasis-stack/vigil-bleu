@@ -1077,16 +1077,7 @@ const geoProgressTimer=setInterval(()=>{
             ? `La précision GPS obtenue est d'environ ${acc} m.`
             : 'La précision GPS n’est pas disponible.'
         );
-          acc!==null
-            ? `Meilleure précision obtenue : ~${acc} m`
-            : 'Précision GPS indisponible'
-        );
 
-        showGeoManual(
-          acc!==null
-            ? `La précision GPS obtenue est d'environ ${acc} m.`
-            : 'La précision GPS n’est pas disponible.'
-        );
       }
 
     }else{

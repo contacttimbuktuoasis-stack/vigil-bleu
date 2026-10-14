@@ -1297,8 +1297,17 @@ function geoFail(err){
     return;
   }
 
+    F.lat=null;
   F.lng=null;
   geoState='error';
+
+  const progress=document.getElementById('geo-progress');
+  const geoBadge=document.getElementById('geo-success-badge');
+  const btn=document.getElementById('btn2');
+
+  if(progress) progress.classList.remove('show');
+  if(geoBadge) geoBadge.style.display='none';
+  if(btn) btn.disabled=true;
 
   if(err&&err.code===1) geoError='permission';
   else if(err&&err.code===3) geoError='timeout';

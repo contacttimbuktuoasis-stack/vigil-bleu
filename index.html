@@ -1290,6 +1290,8 @@ function geoFail(err){
     if(percent) percent.textContent='100 %';
     if(text) text.textContent='Position GPS confirmée. Vous pouvez continuer.';
     if(progress) progress.classList.remove('show');
+const geoBadge=document.getElementById('geo-success-badge');
+if(geoBadge) geoBadge.style.display='flex';
     if(btn) btn.disabled=false;
 
     if(geoWatchId!==null){

@@ -1191,11 +1191,10 @@ if(btn) btn.disabled=false;
     return;
   }
 
-   // 11 à 20 m : position acceptable,
-  // mais on continue à chercher jusqu'à 30 secondes.
+   // 11 à 15 m : position acceptable,
+// mais on continue à chercher jusqu'à 30 secondes.
 
-  if(acc!==null && acc<=20){
-
+if(acc!==null && acc<=15){
     F.lat=lat;
     F.lng=lng;
     F.quartier='Position GPS';
@@ -1250,7 +1249,7 @@ function geoFail(err){
   if(
   bestGeoPosition &&
   Number.isFinite(bestGeoPosition.coords.accuracy) &&
-  bestGeoPosition.coords.accuracy <= 20
+  bestGeoPosition.coords.accuracy <= 15
 ){
     const p=bestGeoPosition;
     const lat=p.coords.latitude;

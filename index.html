@@ -146,13 +146,21 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 @keyframes sendSpin{
   to{transform:rotate(360deg)}
 }
-  .geo-progress{
+.geo-progress{
   display:none;
-  margin-top:12px;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:calc(100% - 32px);
+  max-width:320px;
+  margin:0;
   background:var(--card);
   border:1px solid var(--border-l);
   border-radius:16px;
   padding:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.18);
+  z-index:1000;
 }
 
 .geo-progress.show{
@@ -352,10 +360,35 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <div class="pip"></div>
     </div>
 
-   
-<!-- Localisation GPS -->
+ <!-- Localisation GPS -->
 <div id="geo-pill" style="margin-bottom:14px">
-  <div id="report-map" style="height:280px;border-radius:18px;overflow:hidden;border:2px solid var(--border);background:var(--border-l)"></div>
+
+  <div style="position:relative">
+
+    <div id="report-map" style="height:280px;border-radius:18px;overflow:hidden;border:2px solid var(--border);background:var(--border-l)"></div>
+
+    <!-- Progression GPS superposée à la carte -->
+    <div id="geo-progress" class="geo-progress">
+
+      <div class="geo-progress-title">
+        📍 Localisation en cours…
+      </div>
+
+      <div id="geo-progress-text" class="geo-progress-text">
+        Recherche de votre position, veuillez patienter…
+      </div>
+
+      <div class="geo-progress-bar">
+        <div id="geo-progress-fill" class="geo-progress-fill"></div>
+      </div>
+
+      <div id="geo-progress-percent" class="geo-progress-percent">
+        0 %
+      </div>
+
+    </div>
+
+  </div>
 
   <div style="margin-top:10px;background:var(--card);border:1px solid var(--border-l);border-radius:14px;padding:12px 14px">
     <div style="display:flex;align-items:center;gap:10px">
@@ -370,7 +403,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       </div>
     </div>
   </div>
-</div>
+
+</div>  
+
   <div id="geo-progress" class="geo-progress">
 
   <div class="geo-progress-title">
@@ -1181,9 +1216,27 @@ function geoFail(err){
       reportMap.invalidateSize();
     }
 
+        const progress=document.getElementById('geo-progress');
+    const fill=document.getElementById('geo-progress-fill');
+    const percent=document.getElementById('geo-progress-percent');
+    const text=document.getElementById('geo-progress-text');
+    const btn=document.getElementById('btn2');
+
+    if(fill) fill.style.width='100%';
+    if(percent) percent.textContent='100 %';
+    if(text) text.textContent='Position GPS confirmée. Vous pouvez continuer.';
+    if(progress) progress.classList.remove('show');
+    if(btn) btn.disabled=false;
+
     if(geoWatchId!==null){
       navigator.geolocation.clearWatch(geoWatchId);
       geoWatchId=null;
+    }
+
+    if(reportMap){
+      setTimeout(()=>{
+        reportMap.invalidateSize();
+      },100);
     }
 
     return;

@@ -977,6 +977,15 @@ const geoProgressTimer=setInterval(()=>{
   if(!window.isSecureContext){
     geoState='error';
     geoError='secure';
+
+    const progress=document.getElementById('geo-progress');
+    const geoBadge=document.getElementById('geo-success-badge');
+    const btn=document.getElementById('btn2');
+
+    if(progress) progress.classList.remove('show');
+    if(geoBadge) geoBadge.style.display='none';
+    if(btn) btn.disabled=true;
+
     showGeoManual('La géolocalisation nécessite HTTPS (ou localhost).');
     return;
   }
@@ -984,6 +993,15 @@ const geoProgressTimer=setInterval(()=>{
   if(!navigator.geolocation){
     geoState='error';
     geoError='unsupported';
+
+    const progress=document.getElementById('geo-progress');
+    const geoBadge=document.getElementById('geo-success-badge');
+    const btn=document.getElementById('btn2');
+
+    if(progress) progress.classList.remove('show');
+    if(geoBadge) geoBadge.style.display='none';
+    if(btn) btn.disabled=true;
+
     showGeoManual('Ce navigateur ne prend pas en charge la géolocalisation.');
     return;
   }

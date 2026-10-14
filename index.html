@@ -1149,48 +1149,47 @@ if(btn) btn.disabled=false;
     return;
   }
 
-  // 11 à 20 m : position déjà acceptable,
-  // mais on continue à chercher encore mieux.
+   // 11 à 20 m : position acceptable,
+  // mais on continue à chercher jusqu'à 30 secondes.
+
   if(acc!==null && acc<=20){
 
     F.lat=lat;
     F.lng=lng;
     F.quartier='Position GPS';
 
-    geoState='ok';
+    // Ne pas terminer la recherche prématurément.
+    geoState='loading';
     geoError='';
 
     setPill(
-      '📍',
-      'Position précise',
-      `Précision GPS ~${acc} m`,
-      true
+      '🔄',
+      'Amélioration de la précision…',
+      `Précision actuelle ~${acc} m — recherche d'une meilleure position`
     );
 
+    // Garder le cercle visible pendant la recherche.
     const progress=document.getElementById('geo-progress');
-    const fill=document.getElementById('geo-progress-fill');
-    const percent=document.getElementById('geo-progress-percent');
     const text=document.getElementById('geo-progress-text');
     const btn=document.getElementById('btn2');
-
-    if(fill) fill.style.width='100%';
-    if(percent) percent.textContent='100 %';
-        if(text) text.textContent='Position GPS confirmée. Vous pouvez continuer.';
-    if(progress) progress.classList.remove('show');
-
     const geoBadge=document.getElementById('geo-success-badge');
-    if(geoBadge) geoBadge.style.display='flex';
 
-    if(btn) btn.disabled=false;
+    if(progress) progress.classList.add('show');
+
+    if(text){
+      text.textContent='Position acceptable obtenue. Recherche d’une meilleure précision…';
+    }
+
+    if(geoBadge) geoBadge.style.display='none';
+
+    if(btn) btn.disabled=true;
 
     setTimeout(()=>{
       if(reportMap) reportMap.invalidateSize();
     },100);
 
     return;
-  }
-
-  // > 20 m : on continue à chercher
+  } 
   setPill(
     '🔄',
     'Amélioration de la précision…',

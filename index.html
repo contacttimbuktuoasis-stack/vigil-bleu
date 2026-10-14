@@ -1054,12 +1054,29 @@ const geoProgressTimer=setInterval(()=>{
 
       }else{
 
-        geoState='error';
         geoError='accuracy';
+
+        const progress=document.getElementById('geo-progress');
+        const geoBadge=document.getElementById('geo-success-badge');
+        const btn=document.getElementById('btn2');
+
+        if(progress) progress.classList.remove('show');
+        if(geoBadge) geoBadge.style.display='none';
+        if(btn) btn.disabled=true;
 
         setPill(
           '⚠️',
           'Position insuffisamment précise',
+          acc!==null
+            ? `Meilleure précision obtenue : ~${acc} m`
+            : 'Précision GPS indisponible'
+        );
+
+        showGeoManual(
+          acc!==null
+            ? `La précision GPS obtenue est d'environ ${acc} m.`
+            : 'La précision GPS n’est pas disponible.'
+        );
           acc!==null
             ? `Meilleure précision obtenue : ~${acc} m`
             : 'Précision GPS indisponible'

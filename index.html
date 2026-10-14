@@ -405,12 +405,18 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
         </div>
         <div id="geo-detail" style="font-size:11px;color:var(--light);margin-top:3px">
           Autorisez la localisation si votre téléphone le demande
-        </div>
+            </div>
       </div>
     </div>
   </div>
 
-</div>  
+  <!-- Badge de confirmation GPS -->
+  <div id="geo-success-badge" style="display:none;align-items:center;gap:8px;margin-top:10px;padding:11px 14px;background:#e8f7ed;border:1px solid #a8dfb8;border-radius:12px;color:#18743b;font-size:13px;font-weight:700">
+    <span style="font-size:20px">✓</span>
+    <span>Position GPS confirmée</span>
+  </div>
+
+</div> 
 
   <div id="geo-progress" class="geo-progress">
 
@@ -1169,8 +1175,12 @@ if(btn) btn.disabled=false;
 
     if(fill) fill.style.width='100%';
     if(percent) percent.textContent='100 %';
-    if(text) text.textContent='Position GPS confirmée. Vous pouvez continuer.';
+        if(text) text.textContent='Position GPS confirmée. Vous pouvez continuer.';
     if(progress) progress.classList.remove('show');
+
+    const geoBadge=document.getElementById('geo-success-badge');
+    if(geoBadge) geoBadge.style.display='flex';
+
     if(btn) btn.disabled=false;
 
     setTimeout(()=>{

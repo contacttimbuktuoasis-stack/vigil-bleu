@@ -2656,8 +2656,9 @@ function toggleCompte(id){
   setAcc(acc);
   renderComptes();
 }
+
 function updateNewReportsBadge(){
-  const badge=document.getElementById('notif-badge');
+  const badge=document.getElementById('new-reports-badge');
 
   if(!badge) return;
 
@@ -2678,6 +2679,7 @@ function updateNewReportsBadge(){
     badge.style.display='none';
   }
 }
+
 // ===== TABS =====
 function switchTab(t){
   ['map','list','archives','stats','comptes'].forEach(x=>{

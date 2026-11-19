@@ -462,7 +462,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 </div>
   <div class="foot" style="padding-bottom:max(16px, env(safe-area-inset-bottom, 16px))">
-    <button class="btn-p" id="btn2" onclick="go('s-step3')" disabled>Continuer →</button>
+    <button class="btn-p" id="btn2" onclick="if(!document.getElementById('quartier-input') || !document.getElementById('quartier-input').value){alert('Veuillez sélectionner votre quartier avant de continuer.');document.getElementById('quartier-input').focus();}else{go('s-step3');}" disabled>Continuer →</button>
   </div>
 </div>
 </div>

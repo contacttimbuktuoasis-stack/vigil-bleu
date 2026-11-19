@@ -1435,10 +1435,16 @@ function findDupli(){
 // ===== SUBMIT =====
 function trySubmit(){
   F.notes=(document.getElementById('notes-ta').value||'').trim();
-  // Lire le quartier depuis le champ manuel si GPS absent
+    // Vérifier le quartier sélectionné
   const qInput=document.getElementById('quartier-input');
-  if(qInput&&qInput.value.trim()) F.quartier=qInput.value.trim();
-  if(!F.quartier||F.quartier==='Quartier') F.quartier='Quartier non précisé';
+
+  if(!qInput || !qInput.value){
+    alert('Veuillez sélectionner votre quartier avant de continuer.');
+    if(qInput) qInput.focus();
+    return;
+  }
+
+  F.quartier=qInput.value;
   if(
   geoState!=='ok' ||
   !Number.isFinite(Number(F.lat)) ||
